@@ -1,0 +1,5 @@
+# www.sysinternals.com
+
+start-process \\live.sysinternals.com\tools\procexp64.exe
+
+start-process \\live.sysinternals.com\tools\autoruns64.exe
