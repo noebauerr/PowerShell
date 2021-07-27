@@ -22,6 +22,6 @@ Invoke-Expression $($ScriptOnGitHub.Content)
 (oder gleich direkt starten - aber Vorsicht mit diesem Befehl)
 
 ```sh
-Invoke-WebRequest "https://raw.githubusercontent.com/noebauerr/PowerShell/master/Sound-Beep.ps1" -OutFile "Beep.ps1"; .\Sound-Beep.ps1
+Invoke-WebRequest "https://raw.githubusercontent.com/noebauerr/PowerShell/master/Sound-Beep.ps1" -OutFile "Sound-Beep.ps1"; .\Sound-Beep.ps1
 ```
 (oder gleich direkt starten - aber Vorsicht mit diesem Befehl)
