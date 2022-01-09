@@ -1,3 +1,5 @@
+# Version vom 9.1.2022
+
 # Auflistung der Betriebssystem Builds aller AD Computer Objekte
 # um alte nicht supportete Versionen zu identifizieren
 # am einfachsten auf einem Domain Controller starten, da sind die passenden PS Module schon installiert
