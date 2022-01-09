@@ -40,4 +40,4 @@ Get-ADComputer -Filter * -Property * | sort operatingsystem, operatingsystemvers
 # Get-ADComputer -Filter * -Property * | sort operatingsystem, operatingsystemversion | select Name,OperatingSystem,OperatingSystemServicePack,OperatingSystemVersion | Out-File c:\PS\OS-Liste.txt
 
 # dieses Script liegt auf Github und kann mit folgendem Befehl heruntergeladen werden
-Invoke-WebRequest "https://raw.githubusercontent.com/noebauerr/PowerShell/master/AD-OS-Versionen" -OutFile "AD-OS-Versionen.ps1"
+# Invoke-WebRequest "https://raw.githubusercontent.com/noebauerr/PowerShell/master/AD-OS-Versionen" -OutFile "AD-OS-Versionen.ps1"
