@@ -1,0 +1,29 @@
+# Netzwerkmonitoring mit Windows Boardmittel - pktmon
+# derzeit (2022-01) kann noch kein WLAN Traffic aufgezeichnet werden
+
+pktmon filter list              # aktive Filter auflisten
+pktmon filter remove            # alle Filter entfernen
+pktmon filter add help
+pktmon filter add -t tcp -p 443
+pktmon filter add -p 53         # DNS Capturefilter
+
+pktmon start --etw
+pktmon counters
+pktmon stop
+
+md c:\capture
+pktmon PCAPng pktmon.etl -o c:\capture\caputure.pcapng
+
+pktmon -f c:\capture\pktmon.etl  # -f schreibt in andere Datei
+der Standard ist ein Ringspeicher mit 512 MByte
+Parameter --file-size ändert die Größe
+Parameter -l Multi-File schreibt weitere Dateien
+
+# Auswertung der PCAPng Datei zB mit Wireshark Portable
+# https://www.wireshark.org/#download
+
+# MS Doku zu pktmon
+# https://docs.microsoft.com/en-us/windows-server/networking/technologies/pktmon/pktmon
+
+# http://woshub.com/network-sniffer-packet-monitor-pktmon/
+# https://www.minitool.com/news/network-sniffer-tool-pktmon-exe-windows-10.html
