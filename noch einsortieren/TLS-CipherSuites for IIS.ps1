@@ -1,3 +1,5 @@
+# Stand Jaenner 2022
+
 # Welche Ciphersuiten sind aktiv und wie sind die Eigenschaften?
 Get-TlsCipherSuite | Format-Table Name, Exchange, Cipher, Hash, Certificate
 
@@ -23,4 +25,4 @@ Enable-TlsCipherSuite -Name TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
 # Server 2022 HTTP3 und TLS 1.3 Zusatzinfos
 # https://4sysops.com/archives/increase-iis-performance-with-http3-in-windows-server-2022/
 
-# Stand Jaenner 2022
+# diese Einstellungen wurden nur kurz mit Paessler PRTG und nicht mit www.ssllabs.com getestet
