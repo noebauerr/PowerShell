@@ -5,7 +5,7 @@ https://www.youtube.com/watch?v=cHORZpjy5Dc
 https://www.youtube.com/watch?v=wJwmDnGlLBI
 
 
-zusätzliche Infos
+zusaetzliche Infos
 https://4sysops.com/archives/just-enough-administration-jea-part-1-overview/
 
 JEA Helper Tool 2.0
