@@ -2,6 +2,9 @@
 Start-Process https://microsoft.github.io/CSS-Exchange/Diagnostics/HealthChecker/
 Start-Process https://github.com/microsoft/CSS-Exchange/releases/latest/download/HealthChecker.ps1
 
+# Exchange Server build numbers and release dates
+start-process https://learn.microsoft.com/en-us/exchange/new-features/build-numbers-and-release-dates
+
 # Exchange Infos und Tools
 Start-Process https://www.frankysweb.de/
 Start-Process https://www.frankysweb.de/exchange-reporter-2013/ # Exchange Reporter
@@ -14,7 +17,7 @@ Add-PSSnapin Microsoft.Exchange.Management.PowerShell.SnapIn
 
 $servername = "v-exchange"  # Hostname vom Exchange Server
 
-# EventID 15004 - Healthstatus erhöht
+# EventID 15004 - Healthstatus erhÃ¶ht
 # EventID 15005 - Status normalisiert
 # EventID 15006 - Speicherplatz wird knapp
 # EventID 15007 - RAMauslastung zu HOCH
@@ -40,10 +43,10 @@ Get-Mailbox | sort servername | ft name, servername, haspicture
 
 # die wichtigsten Abfragen zu den Usermailboxen am Server
 
-# Name und Größe und Anzahl wird angezeigt, sortiert nach Größe (über 1 GB)
+# Name und GrÃ¶ÃŸe und Anzahl wird angezeigt, sortiert nach GrÃ¶ÃŸe (Ã¼ber 1 GB)
 Get-MailboxStatistics -Server v-exchange |sort totalitemsize -descending |? totalitemsize -gt 1000MB | ft displayname, totalitemsize, itemcount
 
-# der Spitzenreiter nach Anzahl der Mails (über 9999 Stück)
+# der Spitzenreiter nach Anzahl der Mails (Ã¼ber 9999 StÃ¼ck)
 Get-MailboxStatistics -Server v-exchange |sort itemcount -descending | ? itemcount -gt 9999 | ft displayname, itemcount, totalitemsize
 
 # storagelimitstatus erreicht
@@ -53,7 +56,6 @@ get-mailboxstatistics -server v-exchange | sort storagelimitstatus -descending |
 #Get-MailboxDatabase | Get-Mailbox | fl DisplayName, EmailAddresses > c:\Mailbox.csv
 Get-MailboxDatabase | Get-Mailbox | ft DisplayName, EmailAddresses
 
-#E-Mail Adressen aus einer öffentlichen Ordner Datenbank auslesen:
+#E-Mail Adressen aus einer Ã¶ffentlichen Ordner Datenbank auslesen:
 #Get-MailPublicFolder | fl Displayname, EmailAddresses > c:\PublicFolder.csv
 Get-MailPublicFolder | ft Displayname, EmailAddresses
-
