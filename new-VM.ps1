@@ -14,3 +14,4 @@ $isopath = "c:\iso\server 2022 preview\Windows_InsiderPreview_Server_vNext_en-us
 # $nested = $true   # nested Hyper-v aktivieren
 
 New-VM -Name $vmname
+# Test
