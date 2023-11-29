@@ -1,0 +1,23 @@
+Schnellstart (Fastboot - Hiberboot) aktivieren (deaktivieren) 
+
+Registry Key (wegen HKLM als Admin durchführen)
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Power
+
+DWORD-Wert (32-Bit)
+
+HiberbootEnabled = 0
+
+ 
+ 
+
+Ausführen von:
+Powercfg.cpl
+
+Auswählen, was beim Drücken von Netzschaltern geschehen soll
+
+Einstellungen für das Herunterfahren
+
+Schellstart aktivieren (empfohlen)
+
+Hakerl rausgeben
