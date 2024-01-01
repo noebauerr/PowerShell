@@ -1,5 +1,8 @@
 # Stand Jaenner 2022
 
+# Nartac Software - IIS Crypto GUI
+Start-Process https://www.nartac.com/Products/IISCrypto/Download
+
 # Welche Ciphersuiten sind aktiv und wie sind die Eigenschaften?
 Get-TlsCipherSuite | Format-Table Name, Exchange, Cipher, Hash, Certificate
 
