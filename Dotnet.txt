@@ -1,0 +1,13 @@
+Kontrollieren ob und welche Version von .NET installiert installiert
+
+Check runtime versions
+dotnet --list-runtimes
+
+Check SDK versions
+dotnet --list-SDK
+
+Zusatzinfos:
+https://learn.microsoft.com/en-us/dotnet/core/install/how-to-detect-installed-versions?pivots=os-windows
+
+Download .NET
+https://dotnet.microsoft.com/en-us/download
