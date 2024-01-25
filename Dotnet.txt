@@ -11,3 +11,5 @@ https://learn.microsoft.com/en-us/dotnet/core/install/how-to-detect-installed-ve
 
 Download .NET
 https://dotnet.microsoft.com/en-us/download
+
+# diesen Text habe ich am iPad in Zug hinzugefügt zum Testen
