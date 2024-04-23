@@ -41,7 +41,7 @@ Start-Process https://www.virtualizationhowto.com/2024/03/windows-server-2025-ac
 
 
 # Delegated Managed Service Account dMSA als Nachfolger vom gMSA
-# Kennwörter sind Maschinengebunden, beim gMSA nicht
+# Maschinengebundene service accounts, kein Passwort sondern randomized key der an die Maschine gebunden ist
 
 Start-Process https://learn.microsoft.com/en-us/Windows-server/security/delegated-managed-service-accounts/delegated-managed-service-accounts-overview
 
@@ -82,9 +82,12 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ma
 # LDAP channel binding audit support, events 3074 und 3075 (gibts schon seit Server 2022 KB4520412)
 # LDAP add, search, modify sind nur noch erlaubt wenn die Verbindung verschlüsselt ist
 # Kerberos Supported AES SHA256/384 (RC4 depricated)
+# Kerberos auch auf Workgroup Server (lt. Webinar am 19.4.2024 Base-IT)
 # erweitere Sicherheit bei den default machine account passwords
 
-# zusätzlich soll Kerberos das alte NTLM in naher Zukunft überall ersetzen 
+# zusätzlich soll Kerberos das alte NTLM in naher Zukunft überall ersetzen
+# NTLM Kennwörter werden unsalted im RAM gehalten, MD4 ...
+# SMB Clients können konfiguriert werden dass sie NTLM für outbound connections blockieren
 # local KDC nicht nur in DCs
 
 #endregion
@@ -104,6 +107,7 @@ Start-Process https://learn.microsoft.com/en-us/azure/azure-arc/servers/onboard-
 net start wlansvc # service per default auf manual
 
 # Windows 11 Optik und auch neuen Task Manager
+# Das Setup wurde an die Windows 11 Optik und Funktionen angepasst
 
 # folgende Accounts können im Server 2025 hinzugefügt werden
 # Settings > Accounts > Email & accoounts
@@ -165,11 +169,14 @@ Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-ne
 
 # Hyper-V erhält GPU Partitioning mit Live Migration und Failover Clustering
 # Hyper-V ermöglicht einen Workgroup Cluster mit Zertifikaten gesichert
-# Hyper-V unterstützt 2048 virtuelle CPUs und 240 TB RAM in der VM
+# Hyper-V unterstützt 2048 virtuelle CPUs und 240 TB RAM in der VM, am Host 4 Petabyte RAM
+Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-scalability-in-windows-server?pivots=windows-server-2025
 # Dynamic Processor Compatibility im Cluster
 
 
-# Network ATC - one-click deployment across the cluster and drift remediation
+# Network ATC - one-click deployment across the cluster and drift remediation (vorher nur im Azure Stack HCI)
+# 3 verschiedene Network intents
+# Storage-only, VM traffic, shared management
 
 
 # Feature Update (= In-Place Update) von Server 2022 können wie die Feature updates in Windows 11 installiert werden
@@ -179,6 +186,29 @@ Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-ne
 # Microsofts strong recommendation: BACKUP !
 # Update geht auf N-4 Media-Based Feature Update (Setup.exe) - also ab Server 2012 R2
 # pro Serverupdate kann man mit ca. 1 Stunde rechnen
+
+
+# Windows Server 2025 security baseline schon jetzt verfügbar (nicht erst Monate nach erscheinen des OS)
+# arbeitet wie DSC und stellt den urspünglichen Zustand immer wieder her
+Install-Module -Name Microsoft.OSconfig -AllowPrerelease -Force
+Set-OSConfigDesiredConfigruation -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
+Set-OSConfigDesiredConfigruation -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name WindowsFirewallPublicFirewallState -Value 1 -Force
+Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer
+
+
+# PowerShell
+# neue Module: DefenderPerformance, ReFSDedup ...
+
+
+# Application control
+# enabled in Audit mode
+# Azure Monitor workbook wird dazu benötigt
+
+
+# Removed Features
+# Peer Name Resolution Protocol (PNRP) wurde entfernt wegen DDos Gefahr
+# SMTP-Server an Supporting Tools (SMTP IIS 6 console)
+
 
 
 # Windows Funktionen lifecycle
