@@ -17,7 +17,7 @@ Add-PSSnapin Microsoft.Exchange.Management.PowerShell.SnapIn
 
 $servername = "v-exchange"  # Hostname vom Exchange Server
 
-# EventID 15004 - Healthstatus erhöht
+# EventID 15004 - Healthstatus erhoeht
 # EventID 15005 - Status normalisiert
 # EventID 15006 - Speicherplatz wird knapp
 # EventID 15007 - RAMauslastung zu HOCH
@@ -43,19 +43,19 @@ Get-Mailbox | sort servername | ft name, servername, haspicture
 
 # die wichtigsten Abfragen zu den Usermailboxen am Server
 
-# Name und Größe und Anzahl wird angezeigt, sortiert nach Größe (über 1 GB)
+# Name und Groesse und Anzahl wird angezeigt, sortiert nach Groesse (ueber 1 GB)
 Get-MailboxStatistics -Server v-exchange |sort totalitemsize -descending |? totalitemsize -gt 1000MB | ft displayname, totalitemsize, itemcount
 
-# der Spitzenreiter nach Anzahl der Mails (über 9999 Stück)
+# der Spitzenreiter nach Anzahl der Mails (ueber 9999 Stueck)
 Get-MailboxStatistics -Server v-exchange |sort itemcount -descending | ? itemcount -gt 9999 | ft displayname, itemcount, totalitemsize
 
-# storagelimitstatus erreicht
+# Storagelimitstatus erreicht
 get-mailboxstatistics -server v-exchange | sort storagelimitstatus -descending | ft displayname, storagelimitstatus
 
-#E-Mail Adressen aller Mailbox Datenbanken auslesen:
-#Get-MailboxDatabase | Get-Mailbox | fl DisplayName, EmailAddresses > c:\Mailbox.csv
+# E-Mail Adressen aller Mailbox Datenbanken auslesen:
+# Get-MailboxDatabase | Get-Mailbox | fl DisplayName, EmailAddresses > c:\Mailbox.csv
 Get-MailboxDatabase | Get-Mailbox | ft DisplayName, EmailAddresses
 
-#E-Mail Adressen aus einer öffentlichen Ordner Datenbank auslesen:
-#Get-MailPublicFolder | fl Displayname, EmailAddresses > c:\PublicFolder.csv
+# E-Mail Adressen aus einer oeffentlichen Ordner Datenbank auslesen:
+# Get-MailPublicFolder | fl Displayname, EmailAddresses > c:\PublicFolder.csv
 Get-MailPublicFolder | ft Displayname, EmailAddresses
