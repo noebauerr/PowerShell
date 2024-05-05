@@ -9,3 +9,9 @@ Get-WinGetPackage
 Update-WinGetPackage
 
 Find-WinGetPackage simulator
+
+
+
+# "normales" winget
+
+winget upgrade --all
