@@ -158,6 +158,7 @@ winget install Microsoft.Sysinternals.ProcessMonitor
 Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-new-storage-features/
 
 # NVMe Treiber mit bis zu 70% mehr IOPS und weniger Latenz
+# diskspd.exe -r4k -b4k -t8 -o64 -d60 -Suw #0
 # NVMe-of (over Fabrics) mit TCP/RDMA Support
 
 # REFS Deduplication and Compression (anscheinend total neu geschrieben)
