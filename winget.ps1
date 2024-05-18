@@ -2,7 +2,7 @@ start-process https://github.com/noebauerr/PowerShell
 
 winget upgrade --all
 
-# wingetui
+# wingetui wird aber bald umbenannt auf "anyget?"
 winget install wingetui --id SomePythonThings.WingetUIStore -s winget
 
 
@@ -36,6 +36,9 @@ winget install "Treesize Free" --source msstore
 
 # Github Desktop
 winget install "Github Desktop"
+
+# Apple iPad als Zusatzdisplay
+# Spacedesk Windows Driver # von Datronicsoft
 
 
 # Microsoft Zeugs

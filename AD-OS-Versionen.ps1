@@ -1,4 +1,4 @@
-# Version vom 5.5.2024
+# Version vom 14.5.2024
 
 # Auflistung der Betriebssystem Builds aller AD Computer Objekte
 # um alte nicht supportete Versionen zu identifizieren
@@ -11,10 +11,7 @@ Get-WindowsCapability -Name "RSat.ActiveDirectory*" -Online | Add-WindowsCapabil
 
 
 # Windows 10 Build - start-process https://support.microsoft.com/de-at/help/13853/windows-lifecycle-fact-sheet
-# 19041 - 2004 - EOS Dezember 2021, auch Enterprise Dez 2021
-# 19042 - 2009 - EOS Mai 2022,      Enterprise Mai 2023
-# 19043 - 21H1 - EOS Dezember 2022, Enterprise Bezember 2022
-# 19044 - 21H2 - EOS Oktober 2023,  Enterprise Juni 2024
+# 19044 - 21H2 - EOS Oktober 2023,  Enterprise 11. Juni 2024
 # 19045 - 22H2 - EOS ?              Enterprise 14.Oktober 2025
 # End of Support von Windows 10 Enterprise am 14.Oktober 2025
 

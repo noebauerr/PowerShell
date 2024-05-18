@@ -227,3 +227,8 @@ Start-Process https://learn.microsoft.com/de-de/windows-server/get-started/remov
 # LBFO Team im Hyper-V
 # WINS
 # TLS 1.0 und 1.1
+
+
+# Test Keys fuer Preview
+# Server Standard: MFY9F-XBN2F-TYFMP-CCV49-RMYVH
+# Datacenter: 2KNJJ-33Y9H-2GXGX-KMQWH-G6H67
