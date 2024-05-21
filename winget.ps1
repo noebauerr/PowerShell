@@ -48,6 +48,9 @@ winget install onenote
 winget install Microsoft.PowerShell  # powershell 7.x
 # sysinternals suite
 winget install "Sysinternals Suite"
+winget install bginfo
+start-process bginfo /accepteula /timer:0
+
 # Lockoutstatus.exe von Microsoft
 Start-Process https://www.microsoft.com/en-gb/download/details.aspx?id=15201
 Start-Process https://download.microsoft.com/download/c/0/4/c0472410-b4c2-4aef-89d2-e7c708dfc225/lockoutstatus.msi

@@ -11,15 +11,18 @@ Get-WindowsCapability -Name "RSat.ActiveDirectory*" -Online | Add-WindowsCapabil
 
 
 # Windows 10 Build - start-process https://support.microsoft.com/de-at/help/13853/windows-lifecycle-fact-sheet
-# 19044 - 21H2 - EOS Oktober 2023,  Enterprise 11. Juni 2024
-# 19045 - 22H2 - EOS ?              Enterprise 14.Oktober 2025
+# 19044 - 21H2 - EOS Juni 2023,    Enterprise 11. Juni 2024
+# 19045 - 22H2 - EOS Oktober 2025, Enterprise 14.Oktober 2025
 # End of Support von Windows 10 Enterprise am 14.Oktober 2025
 
 # Windows 11 Build (Pro 24 Monate, Enterprise 36 Monate)
-# 22000 - 21H2 - EOS Oktober 2023, Enterprise Oktober 2024 
-# 22621 - 22H2 - EOS Oktober 2024
-# 22631 - 23H2 - EOS November 2026
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro # Win 11 Pro
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-11-enterprise-and-education # Win 11 Enterprise
+# 22000 - 21H2 - EOS Oktober 2023,  Enterprise Oktober 2024 
+# 22621 - 22H2 - EOS Oktober 2024,  Enterprise Oktober 2025
+# 22631 - 23H2 - EOS November 2025, Enterprise November 2026
 # 22635 - beta
+
 
 # Server OS Supportende
 # 2012      10.10.2023

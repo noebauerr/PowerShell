@@ -191,10 +191,12 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hy
 
 # Windows Server 2025 security baseline schon jetzt verfügbar (nicht erst Monate nach erscheinen des OS)
 # arbeitet wie DSC und stellt den urspünglichen Zustand immer wieder her
-Install-Module -Name Microsoft.OSconfig -AllowPrerelease -Force
+# start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.19-preview
+Find-Module -Name PowerShellGet | Install-Module
+Install-Module -Name Microsoft.OSConfig -AllowPrerelease -Force
 Set-OSConfigDesiredConfigruation -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
 Set-OSConfigDesiredConfigruation -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name WindowsFirewallPublicFirewallState -Value 1 -Force
-Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer
+Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer | ft name
 
 
 # PowerShell
@@ -208,7 +210,7 @@ Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/Me
 
 # Removed Features
 # Peer Name Resolution Protocol (PNRP) wurde entfernt wegen DDos Gefahr
-# SMTP-Server an Supporting Tools (SMTP IIS 6 console)
+# SMTP-Server und Supporting Tools (SMTP IIS 6 console)
 
 
 
@@ -229,6 +231,6 @@ Start-Process https://learn.microsoft.com/de-de/windows-server/get-started/remov
 # TLS 1.0 und 1.1
 
 
-# Test Keys fuer Preview
-# Server Standard: MFY9F-XBN2F-TYFMP-CCV49-RMYVH
-# Datacenter: 2KNJJ-33Y9H-2GXGX-KMQWH-G6H67
+# Test Keys fuer Server Preview
+# Server 2025 Standard:   MFY9F-XBN2F-TYFMP-CCV49-RMYVH
+# Server 2025 Datacenter: 2KNJJ-33Y9H-2GXGX-KMQWH-G6H67
