@@ -194,8 +194,8 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hy
 # start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.19-preview
 Find-Module -Name PowerShellGet | Install-Module
 Install-Module -Name Microsoft.OSConfig -AllowPrerelease -Force
-Set-OSConfigDesiredConfigruation -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
-Set-OSConfigDesiredConfigruation -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name WindowsFirewallPublicFirewallState -Value 1 -Force
+Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
+Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name WindowsFirewallPublicFirewallState -Value 1 -Force
 Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer | ft name
 
 
