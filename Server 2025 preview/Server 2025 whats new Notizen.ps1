@@ -148,8 +148,12 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-nt
  
 
 # Winget Support juhuuuu
-winget install Microsoft.SQLServer.2022.Express # auch SQL kann installiert werden
 winget install Microsoft.Sysinternals.ProcessMonitor
+
+# bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden
+Set-Culture -CultureInfo en-us
+winget install Microsoft.SQLServer.2022.Express
+Set-Culture -CultureInfo de-de
 
 
 #region Storage
@@ -193,9 +197,10 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hy
 # arbeitet wie DSC und stellt den urspünglichen Zustand immer wieder her
 # start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.19-preview
 Find-Module -Name PowerShellGet | Install-Module
+# jetzt die PowerShell schliessen und neu öffnen
 Install-Module -Name Microsoft.OSConfig -AllowPrerelease -Force
 Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
-Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name WindowsFirewallPublicFirewallState -Value 1 -Force
+Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name FirewallPublicProfileState -Value 1 -Force
 Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer | ft name
 
 
