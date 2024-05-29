@@ -2,7 +2,7 @@
 
 Start-Process https://learn.microsoft.com/en-us/Windows-server/get-started/whats-new-windows-server-insiders-preview
 
-# hier noch mal eine schöne Zusammenfassung der neuen Funktionen
+# hier noch mal eine schÃ¶ne Zusammenfassung der neuen Funktionen
 Start-Process https://www.virtualizationhowto.com/2024/03/windows-server-2025-vs-windows-server-2022/
 
 # What's new in Windows Server 2025 - Zusammenfassung in einem 30 min Video
@@ -13,10 +13,10 @@ Start-Process https://www.youtube.com/watch?v=j470Tp4b6es
 # kleinere Patches, daher sind sie schneller installiert
 # kein Neustart notwendig (ausser alle 3 Monate und bei zB .net Updates) 
 
-# bisher nur mit Windows Server 2022 Azure Edition möglich
-# ab Server 2025 für physische und virtuelle System, egal so sie betrieben werden möglich
-# nur im Azure Portal mit ARC Anbindung möglich
-# nur für einen noch unbekannten monatlichen Betrag (ausser bei Azure und Azure Stack HCI)
+# bisher nur mit Windows Server 2022 Azure Edition mÃ¶glich
+# ab Server 2025 fÃ¼r physische und virtuelle System, egal so sie betrieben werden mÃ¶glich
+# nur im Azure Portal mit ARC Anbindung mÃ¶glich
+# nur fÃ¼r einen noch unbekannten monatlichen Betrag (ausser bei Azure und Azure Stack HCI)
 
 #endregion
 
@@ -37,7 +37,7 @@ Start-Process https://www.virtualizationhowto.com/2024/03/windows-server-2025-ac
 
 
 # jetzt werden alle Prozessorgruppen angsprochen, nicht nur NUMA 0,
-# daher können jetzt mehrere Sockel benutzt werden (> 64 Cores möglich)
+# daher kÃ¶nnen jetzt mehrere Sockel benutzt werden (> 64 Cores mÃ¶glich)
 
 
 # Delegated Managed Service Account dMSA als Nachfolger vom gMSA
@@ -66,9 +66,9 @@ $Parameter = @{
 Identity = 'Database 32k Pages Feature'
 Scope  = 'ForestOrConfigurationSet'
 Target = 'myDomain.at'
-Server = 'v-dc1'}  # für jeden Server
+Server = 'v-dc1'}  # fÃ¼r jeden Server
 
-Enable-ADOptionalFeature @Parameter #wird auch für den Recycle Bin verwendet
+Enable-ADOptionalFeature @Parameter #wird auch fÃ¼r den Recycle Bin verwendet
 
 
 # DC-location Algorythmus wurde verbessert
@@ -77,17 +77,17 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ma
 
 
 # AD Security
-# LDAP support für TLS 1.3
+# LDAP support fÃ¼r TLS 1.3
 # LDAP encryption by default
 # LDAP channel binding audit support, events 3074 und 3075 (gibts schon seit Server 2022 KB4520412)
-# LDAP add, search, modify sind nur noch erlaubt wenn die Verbindung verschlüsselt ist
+# LDAP add, search, modify sind nur noch erlaubt wenn die Verbindung verschlÃ¼sselt ist
 # Kerberos Supported AES SHA256/384 (RC4 depricated)
 # Kerberos auch auf Workgroup Server (lt. Webinar am 19.4.2024 Base-IT)
 # erweitere Sicherheit bei den default machine account passwords
 
-# zusätzlich soll Kerberos das alte NTLM in naher Zukunft überall ersetzen
-# NTLM Kennwörter werden unsalted im RAM gehalten, MD4 ...
-# SMB Clients können konfiguriert werden dass sie NTLM für outbound connections blockieren
+# zusÃ¤tzlich soll Kerberos das alte NTLM in naher Zukunft Ã¼berall ersetzen
+# NTLM KennwÃ¶rter werden unsalted im RAM gehalten, MD4 ...
+# SMB Clients kÃ¶nnen konfiguriert werden dass sie NTLM fÃ¼r outbound connections blockieren
 # local KDC nicht nur in DCs
 
 #endregion
@@ -95,13 +95,13 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ma
 #region Azure Arc
 
 # das Azure Arc setup Feature-on-Demand ist vorinstalliert
-# Menüpunkt im Servermanager
+# MenÃ¼punkt im Servermanager
 
 Start-Process https://learn.microsoft.com/en-us/azure/azure-arc/servers/onboard-windows-server
 
 #endregion
 
-# Bluetooth Devices werden jetzt unterstützt
+# Bluetooth Devices werden jetzt unterstÃ¼tzt
 
 # WLAN Service
 net start wlansvc # service per default auf manual
@@ -109,17 +109,17 @@ net start wlansvc # service per default auf manual
 # Windows 11 Optik und auch neuen Task Manager
 # Das Setup wurde an die Windows 11 Optik und Funktionen angepasst
 
-# folgende Accounts können im Server 2025 hinzugefügt werden
+# folgende Accounts kÃ¶nnen im Server 2025 hinzugefÃ¼gt werden
 # Settings > Accounts > Email & accoounts
 # - Microsoft Entra ID
 # - Microsoft account
 # - Work od school account 
 
-# File Compression unterstützt jetzt ZIP, 7z und TAR
+# File Compression unterstÃ¼tzt jetzt ZIP, 7z und TAR
 
 #region SMB
 # SMB over Quick UDP Internet Connection (QUIC) in allen Editionen enthalten
-# TLS Verschlüsselung und daher kein VPN nötig
+# TLS VerschlÃ¼sselung und daher kein VPN nÃ¶tig
 # weniger Latenz
 # Die Konfiguration ist aber schon "anspruchsvoll"
 Start-Process https://learn.microsoft.com/en-us/Windows-server/storage/file-server/smb-over-quic
@@ -136,14 +136,14 @@ Start-Process https://www.youtube.com/watch?v=3YT18BiNOKM&t=5s
 # SMB NTLM blocking
 Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-ntlm-blocking-now-supported-in-windows-insider/ba-p/3916206
 
-# SMB Firewall Rule Hardening (NetBIOS Ports werden nicht geöffnet)
+# SMB Firewall Rule Hardening (NetBIOS Ports werden nicht geÃ¶ffnet)
 
 #endregion SMB
 
 
 # LAPS wurde optimiert
-# Passphrasen statt grauslige komplex Kennwörter
-# die automatischen Kennwörter können konfiguriert werden dass sie keine 1,i,I,l o,O,0 usw enthalten
+# Passphrasen statt grauslige komplex KennwÃ¶rter
+# die automatischen KennwÃ¶rter kÃ¶nnen konfiguriert werden dass sie keine 1,i,I,l o,O,0 usw enthalten
 # LAPS AD attribute msLAPS-CurrentPasswordVersion um beim Rollback keine Probleme zu verursachen
  
 
@@ -172,9 +172,9 @@ Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-ne
 #endregion Storage
 
 
-# Hyper-V erhält GPU Partitioning mit Live Migration und Failover Clustering
-# Hyper-V ermöglicht einen Workgroup Cluster mit Zertifikaten gesichert
-# Hyper-V unterstützt 2048 virtuelle CPUs und 240 TB RAM in der VM, am Host 4 Petabyte RAM
+# Hyper-V erhÃ¤lt GPU Partitioning mit Live Migration und Failover Clustering
+# Hyper-V ermÃ¶glicht einen Workgroup Cluster mit Zertifikaten gesichert
+# Hyper-V unterstÃ¼tzt 2048 virtuelle CPUs und 240 TB RAM in der VM, am Host 4 Petabyte RAM
 Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-scalability-in-windows-server?pivots=windows-server-2025
 # Dynamic Processor Compatibility im Cluster
 
@@ -184,20 +184,20 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hy
 # Storage-only, VM traffic, shared management
 
 
-# Feature Update (= In-Place Update) von Server 2022 können wie die Feature updates in Windows 11 installiert werden
+# Feature Update (= In-Place Update) von Server 2022 kÃ¶nnen wie die Feature updates in Windows 11 installiert werden
 # funktioniert derzeit bei 96% der Systeme, bei einem Error rollback (zumindest meistens)
-# es gibt kein zurück
-# S2D Cluster können auch im laufenden Betrieb aktualisiert werden
+# es gibt kein zurÃ¼ck
+# S2D Cluster kÃ¶nnen auch im laufenden Betrieb aktualisiert werden
 # Microsofts strong recommendation: BACKUP !
 # Update geht auf N-4 Media-Based Feature Update (Setup.exe) - also ab Server 2012 R2
 # pro Serverupdate kann man mit ca. 1 Stunde rechnen
 
 
-# Windows Server 2025 security baseline schon jetzt verfügbar (nicht erst Monate nach erscheinen des OS)
-# arbeitet wie DSC und stellt den urspünglichen Zustand immer wieder her
+# Windows Server 2025 security baseline schon jetzt verfÃ¼gbar (nicht erst Monate nach erscheinen des OS)
+# arbeitet wie DSC und stellt den urspÃ¼nglichen Zustand immer wieder her
 # start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.19-preview
 Find-Module -Name PowerShellGet | Install-Module
-# jetzt die PowerShell schliessen und neu öffnen
+# jetzt die PowerShell schliessen und neu Ã¶ffnen
 Install-Module -Name Microsoft.OSConfig -AllowPrerelease -Force
 Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
 Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name FirewallPublicProfileState -Value 1 -Force
@@ -210,7 +210,7 @@ Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/Me
 
 # Application control
 # enabled in Audit mode
-# Azure Monitor workbook wird dazu benötigt
+# Azure Monitor workbook wird dazu benÃ¶tigt
 
 
 # Removed Features
@@ -234,7 +234,7 @@ Start-Process https://learn.microsoft.com/de-de/windows-server/get-started/remov
 # LBFO Team im Hyper-V
 # WINS
 # TLS 1.0 und 1.1
-
+# Wordpad und SMTP-Dienst wurden aus Server 2025 entfernt
 
 # Test Keys fuer Server Preview
 # Server 2025 Standard:   MFY9F-XBN2F-TYFMP-CCV49-RMYVH
