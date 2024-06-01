@@ -40,6 +40,9 @@ winget install "Github Desktop"
 # Apple iPad als Zusatzdisplay
 # Spacedesk Windows Driver # von Datronicsoft
 
+# Netzwerk IP Scanner
+winget install Famatech.AdvancedIPScanner
+
 
 # Microsoft Zeugs
 winget install "Microsoft Loop"

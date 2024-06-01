@@ -1,5 +1,5 @@
 # PRTG Hyper-V Replikas werden abgefragt
-# RSAT für Hyper-v muss installiert sein
+# RSAT fuer Hyper-v muss installiert sein
 
 $rep = Get-VMReplication -ComputerName HyperV1,HyperV2 | Select-Object VMname, state, health
 
