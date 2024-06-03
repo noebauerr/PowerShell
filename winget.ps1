@@ -6,7 +6,6 @@ winget upgrade --all
 winget install wingetui --id SomePythonThings.WingetUIStore -s winget
 
 
-
 # Remotezeugs
 winget search mRemoteNG
 winget search rdcman
@@ -53,6 +52,10 @@ winget install Microsoft.PowerShell  # powershell 7.x
 winget install "Sysinternals Suite"
 winget install bginfo
 start-process bginfo /accepteula /timer:0
+
+# Windows Admin Center
+winget install "Windows Admin Center"
+
 
 # Lockoutstatus.exe von Microsoft
 Start-Process https://www.microsoft.com/en-gb/download/details.aspx?id=15201
