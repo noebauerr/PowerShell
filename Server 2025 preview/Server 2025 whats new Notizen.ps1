@@ -152,7 +152,7 @@ winget install Microsoft.Sysinternals.ProcessMonitor
 
 # bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden
 Set-Culture -CultureInfo en-us
-winget install Microsoft.SQLServer.2022.Express
+winget install Microsoft.SQLServer.2022.Express --silent --accept-source-agreements
 Set-Culture -CultureInfo de-de
 
 

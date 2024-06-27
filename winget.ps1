@@ -56,6 +56,7 @@ start-process bginfo /accepteula /timer:0
 # Windows Admin Center
 winget install "Windows Admin Center"
 
+# Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
 
 # Lockoutstatus.exe von Microsoft
 Start-Process https://www.microsoft.com/en-gb/download/details.aspx?id=15201
