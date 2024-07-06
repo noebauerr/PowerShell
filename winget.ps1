@@ -2,7 +2,7 @@ start-process https://github.com/noebauerr/PowerShell
 
 winget upgrade --all
 
-# wingetui wird aber bald umbenannt auf "anyget?"
+# UniGetUI - war vorher wingetui
 winget install wingetui --id SomePythonThings.WingetUIStore -s winget
 
 
