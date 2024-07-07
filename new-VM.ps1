@@ -1,32 +1,45 @@
-# schnell eine neue VM erstellen (ohne Hyper-V Schnellerstellung)
+# schnell eine neue VM von einer ISO Datei erstellen (ohne Hyper-V Schnellerstellung)
 
 # muss als Administrator ausgefuehrt werden
 #Requires -RunAsAdministrator
 
-$Pfad    = "d:\vms"
+$VMPfad  = "d:\vms"
 $vmname  = "v-2025-01-de"
+$Notes   = "Server 2025 Test-VM"
 $cpu     = 4
 $RAM     = 2048MB # dynamischer RAM
 $Storage = 40GB
-$Notes   = "Server 2025 Test-VM"
+$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26244.iso"
+$Nested  = 0 # mit 1 wird eine NESTED VM erstellt
 
-$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26212.iso"
 
-IF (Test-Path $isopath) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
+IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
  else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"}
 
-# optionale Parameter fuer spaeter
-# $vhdxpath = "Windows_InsiderPreview_ServerStandard_en-us_VHDX_20339.vhdx"
-
-IF (Get-VM $vmname) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon!"; Start-Sleep 15; exit}
+IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon!"; Start-Sleep 15; exit}
  else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts"}
 
-New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $pfad\$vmname -Generation 2 -NewVHDPath $Pfad\$vmname\vhdx\$vmname.vhdx -NewVHDSizeBytes $Storage
+New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMPfad\$vmname -Generation 2 -NewVHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx -NewVHDSizeBytes $Storage
 Set-VM -Name $vmname -ProcessorCount $cpu -Notes $notes
 Set-VM -Name $vmname -AutomaticStartAction Nothing -AutomaticStopAction ShutDown -AutomaticCheckpointsEnabled $false
 
-# DVD Laufwerk einhängen und Startreihenfolge ändern
+Add-VMDvdDrive -VMName $vmname -Path $isopath
+$dvd = Get-VMDvdDrive -VMName $vmname
+Set-VMFirmware $vmname -FirstBootDevice $dvd
 
-# VM starten
+
+# die NIC koennte man auch noch umbenennen
+$NicName = (Get-VMNetworkAdapter -VMName $vmname).Name
+# Rename-VMNetworkAdapter -Name $NicName -VMName $vmname -NewName Management
+Connect-VMNetworkAdapter -Name $NicName -SwitchName "Default Switch" -VMName $vmname
+
+if ($Nested) {
+    # nested VM aktivieren
+    Set-VMNetworkAdapter -VMName $vmname -Name $NicName -MacAddressSpoofing On
+    Set-VMProcessor -VMName $vmname -ExposeVirtualizationExtensions $true
+    }
+
+Start-VM -VMName $vmname
 
 # VM Console verbinden
+VMconnect.exe localhost $vmname
