@@ -42,9 +42,6 @@ IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Y
  else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts"}
 
 
-# hier muss vorher die ISO Datei gemounted werden
-# https://www.winhelponline.com/blog/mount-iso-using-powershell/?utm_content=cmp-true
-
 $mount   = Mount-DiskImage -ImagePath $isopath  # welcher Laufwerksbuchstabe ?
 $mountLW = ($mount | get-volume).DriveLetter
 $sourcePath = $mountLW+":"+"\sources\install.wim"
@@ -53,11 +50,9 @@ Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\$vmnam
 
 Dismount-DiskImage -ImagePath $isopath
 
-
 New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMpfad\$vmname -Generation 2 -VHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx
 Set-VM -Name $vmname -ProcessorCount $cpu -Notes $notes
 Set-VM -Name $vmname -AutomaticStartAction Nothing -AutomaticStopAction ShutDown -AutomaticCheckpointsEnabled $false
-
 
 # die NIC koennte man auch noch umbenennen
 $NicName = (Get-VMNetworkAdapter -VMName $vmname).Name
