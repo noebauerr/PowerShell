@@ -4,12 +4,12 @@
 #Requires -RunAsAdministrator
 
 $VMPfad  = "d:\vms"
-$vmname  = "v-2025-01-de"
+$vmname  = "v-2025-05-en"
 $Notes   = "Server 2025 Test-VM"
 $cpu     = 4
 $RAM     = 2048MB # dynamischer RAM
 $Storage = 40GB
-$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26244.iso"
+$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26244.iso"
 $Nested  = 0 # mit 1 wird eine NESTED VM erstellt
 
 #region 
@@ -42,15 +42,15 @@ IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Y
  else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts"}
 
 
-$mount   = Mount-DiskImage -ImagePath $isopath  # welcher Laufwerksbuchstabe ?
-$mountLW = ($mount | get-volume).DriveLetter
+$mount      = Mount-DiskImage -ImagePath $isopath  # welcher Laufwerksbuchstabe ?
+$mountLW    = ($mount | get-volume).DriveLetter
 $sourcePath = $mountLW+":"+"\sources\install.wim"
 
 Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\$vmname\vhdx\$vmname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
 
 Dismount-DiskImage -ImagePath $isopath
 
-New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMpfad\$vmname -Generation 2 -VHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx
+New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMpfad -Generation 2 -VHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx
 Set-VM -Name $vmname -ProcessorCount $cpu -Notes $notes
 Set-VM -Name $vmname -AutomaticStartAction Nothing -AutomaticStopAction ShutDown -AutomaticCheckpointsEnabled $false
 
@@ -65,11 +65,32 @@ if ($Nested) {
     Set-VMProcessor -VMName $vmname -ExposeVirtualizationExtensions $true
     }
 
+#region - unattend.xml Datei implementieren
 
+# die Datei unattend.xml in den Ordner c:\windows\panther kopieren
 
-# jetzt noch autounattend.xml in die vhdx Datei implementieren
-Write-Host -ForegroundColor Yellow "jetzt noch autounattend.xml in die vhdx Datei implementieren"
+# der Mount-VHD Befehl hat den Nachteil dass kein Laufwerksbuchstabe angegeben werden kann - wie kann man den "Mountpoint" rausfinden?
+# Mount-VHD -Path $VMPfad\$vmname\vhdx\$vmname.vhdx
 
+New-Item -Path "$vmpfad\$vmname\loeschen" -ItemType Directory
+dism /mount-image /ImageFile:$VMPfad\$vmname\vhdx\$vmname.vhdx /MountDir:"$vmpfad\$vmname\loeschen" /index:1
+
+Write-Host "die VHDX wurde gemountet - "$vmpfad\$vmname\loeschen" "
+Write-Host "event kann man jetzt einen Tools Ordner anlegen und zB ein winget.ps1 skript reinkopieren"
+
+# hier den Kopierbefehl reinschreiben
+Write-Host -ForegroundColor Yellow "jetzt die unattend.xml nach c:\ oder c:\windows\panther kopieren."
+
+pause
+
+dism /unmount-image /mountdir:"$vmpfad\$vmname\loeschen" /commit
+Remove-Item -Path "$vmpfad\$vmname\loeschen"
+
+# Dismount-VHD -Path $VMPfad\$vmname\vhdx\$vmname.vhdx
+
+#endregion
+
+Start-Sleep 5  # diese Zeitverzoegerung ist event nicht unbedingt notwendig. ausser der dismount dauert zu lange und blockiert die vhdx Datei
 
 Start-VM -VMName $vmname
 

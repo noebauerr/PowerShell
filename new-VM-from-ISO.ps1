@@ -1,6 +1,10 @@
 # schnell eine neue VM von einer ISO Datei erstellen (ohne Hyper-V Schnellerstellung)
 
-# muss als Administrator ausgefuehrt werden
+# eine Unattend Installation koennte man mit dem Tool ntlite erstellen
+# Start-Process www.ntlite.com # kann die ISO Datei bearbeiten
+# mit dem kostenlosen Tool anyburn kann man in die ISO Datei zB eine Unattend.xml kopieren
+
+# Dieses Skript muss als Administrator ausgefuehrt werden
 #Requires -RunAsAdministrator
 
 $VMPfad  = "d:\vms"
