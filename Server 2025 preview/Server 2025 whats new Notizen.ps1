@@ -47,7 +47,7 @@ Start-Process https://learn.microsoft.com/en-us/Windows-server/security/delegate
 
 # Anleitung zum Setup eines dMSA
 Start-Process https://learn.microsoft.com/en-us/Windows-server/security/delegated-managed-service-accounts/delegated-managed-service-accounts-set-up-dmsa
-
+Start-Process https://4sysops.com/archives/delegated-managed-service-accounts-in-windows-server-2025/
 
 
 # neue Performance Counters im perfmon
@@ -95,7 +95,7 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ma
 #region Azure Arc
 
 # das Azure Arc setup Feature-on-Demand ist vorinstalliert
-# Menüpunkt im Servermanager
+# Menuepunkt im Servermanager
 
 Start-Process https://learn.microsoft.com/en-us/azure/azure-arc/servers/onboard-windows-server
 
@@ -150,7 +150,7 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-nt
 # Winget Support juhuuuu
 winget install Microsoft.Sysinternals.ProcessMonitor
 
-# bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden
+# bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden bei einer SQL 2022 Installation
 Set-Culture -CultureInfo en-us
 winget install Microsoft.SQLServer.2022.Express --silent --accept-source-agreements
 Set-Culture -CultureInfo de-de
@@ -213,10 +213,20 @@ Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/Me
 # Azure Monitor workbook wird dazu benoetigt
 
 
-# Removed Features
+# Removed Features in Server 2025
+Start-Process https://learn.microsoft.com/en-us/Windows-server/get-started/removed-deprecated-features-windows-server-2025
+# Wordpad
+# Windows PowerShell 2.0
 # Peer Name Resolution Protocol (PNRP) wurde entfernt wegen DDos Gefahr
-# SMTP-Server und Supporting Tools (SMTP IIS 6 console)
+# SMTP-Server
+# IIS 6 Management Console
 
+# Windows Server Features die veraltet sind
+Start-Process https://learn.microsoft.com/de-de/windows-server/get-started/removed-deprecated-features-windows-server-2022
+# LBFO Team im Hyper-V
+# WINS
+# TLS 1.0 und 1.1
+# WEBdav Redirector Service
 
 
 # Windows Funktionen lifecycle
@@ -229,12 +239,6 @@ Start-Process https://learn.microsoft.com/de-de/windows/whats-new/deprecated-fea
 # Windows Funktionen die entfernt wurden nachdem sie auf der veraltet Liste standen
 Start-Process https://learn.microsoft.com/de-de/windows/whats-new/removed-features
 
-# Windows Server Features die veraltet sind
-Start-Process https://learn.microsoft.com/de-de/windows-server/get-started/removed-deprecated-features-windows-server-2022
-# LBFO Team im Hyper-V
-# WINS
-# TLS 1.0 und 1.1
-# Wordpad und SMTP-Dienst wurden aus Server 2025 entfernt
 
 # Test Keys fuer Server 2025 Preview
 # Server 2025 Standard:   MFY9F-XBN2F-TYFMP-CCV49-RMYVH

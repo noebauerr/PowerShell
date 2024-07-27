@@ -4,16 +4,18 @@
 #Requires -RunAsAdministrator
 
 $VMPfad  = "d:\vms"
-$vmname  = "v-2025-05-en"
+$vmname  = "v-2025-03-de"
 $Notes   = "Server 2025 Test-VM"
 $cpu     = 4
 $RAM     = 2048MB # dynamischer RAM
 $Storage = 40GB
-$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26244.iso"
+$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26257.iso"
 $Nested  = 0 # mit 1 wird eine NESTED VM erstellt
+$AdminPassword  = "asdf1234!" # fuer die unattend.xml
+$oemInformation = "OEM Info fuer die unattend Datei"
 
-#region 
-# Download convert-windowsimage from MSLAB
+#region Convert-WindowsImage download
+# Download Convert-WindowsImage from MSLAB
     Write-host "Testing Convert-windowsimage presence"
     $convertWindowsImagePath = "$VMPfad\Convert-WindowsImage.ps1"
     
@@ -65,9 +67,60 @@ if ($Nested) {
     Set-VMProcessor -VMName $vmname -ExposeVirtualizationExtensions $true
     }
 
+#region - unattend.xml Inhalt erstellen
+
+$TimeZone       = "W. Europe Standard Time"
+
+$fileContent =  @"
+<?xml version='1.0' encoding='utf-8'?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <settings pass="offlineServicing">
+   <component
+        xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        language="neutral"
+        name="Microsoft-Windows-PartitionManager"
+        processorArchitecture="amd64"
+        publicKeyToken="31bf3856ad364e35"
+        versionScope="nonSxS"
+        >
+      <SanPolicy>1</SanPolicy>
+    </component>
+ </settings>
+ <settings pass="specialize">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ComputerName>$vmname</ComputerName>
+        $oeminformation
+        <RegisteredOwner>PFE</RegisteredOwner>
+        <RegisteredOrganization>Contoso</RegisteredOrganization>
+    </component>
+ </settings>
+ <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <UserAccounts>
+        <AdministratorPassword>
+           <Value>$AdminPassword</Value>
+           <PlainText>true</PlainText>
+        </AdministratorPassword>
+      </UserAccounts>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+        <SkipUserOOBE>true</SkipUserOOBE>
+      </OOBE>
+      <TimeZone>$TimeZone</TimeZone>
+    </component>
+  </settings>
+</unattend>
+
+"@
+
+#endregion
+
 #region - unattend.xml Datei implementieren
 
-# die Datei unattend.xml in den Ordner c:\windows\panther kopieren
+# die Datei unattend.xml in den Ordner c:\windows\panther oder ins root kopieren
 
 # der Mount-VHD Befehl hat den Nachteil dass kein Laufwerksbuchstabe angegeben werden kann - wie kann man den "Mountpoint" rausfinden?
 # Mount-VHD -Path $VMPfad\$vmname\vhdx\$vmname.vhdx
@@ -75,13 +128,12 @@ if ($Nested) {
 New-Item -Path "$vmpfad\$vmname\loeschen" -ItemType Directory
 dism /mount-image /ImageFile:$VMPfad\$vmname\vhdx\$vmname.vhdx /MountDir:"$vmpfad\$vmname\loeschen" /index:1
 
-Write-Host "die VHDX wurde gemountet - "$vmpfad\$vmname\loeschen" "
-Write-Host "event kann man jetzt einen Tools Ordner anlegen und zB ein winget.ps1 skript reinkopieren"
+# unattend.xml jetzt schreiben
 
-# hier den Kopierbefehl reinschreiben
-Write-Host -ForegroundColor Yellow "jetzt die unattend.xml nach c:\ oder c:\windows\panther kopieren."
+$unattendFile = New-Item "$vmpfad\$vmname\loeschen\Unattend.xml" -type File
+Set-Content -path $unattendFile -value $fileContent
 
-pause
+Write-Host -ForegroundColor Green "Die UNATTEND.XML wurde jetzt erzeugt."
 
 dism /unmount-image /mountdir:"$vmpfad\$vmname\loeschen" /commit
 Remove-Item -Path "$vmpfad\$vmname\loeschen"

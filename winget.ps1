@@ -23,8 +23,8 @@ winget install "devolutions remote desktop manager" --accept-package-agreements
 
 
 # ISO bearbeiten und unattend Zeugs
-winget search anyBurn
-winget search "ntlite"
+winget search anyBurn   # zB Unattend.xml direkt auf die ISO schreiben
+winget search "ntlite"  # Win Installationsmedium anpassen und Service-Packs, Treiber und Systemkomponenten anpassen
 
 # Benchmark
 winget search cinebench
