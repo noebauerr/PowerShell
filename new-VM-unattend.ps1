@@ -1,18 +1,20 @@
-# ein VM erstellen wo nur wenig abgefragt wird
+# eine VM automatisch erstellen wo nur wenig abgefragt wird
 
 # muss als Administrator ausgefuehrt werden
 #Requires -RunAsAdministrator
 
-$VMPfad  = "d:\vms"
-$vmname  = "v-2025-03-de"
-$Notes   = "Server 2025 Test-VM"
-$cpu     = 4
-$RAM     = 2048MB # dynamischer RAM
-$Storage = 40GB
-$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26257.iso"
-$Nested  = 0 # mit 1 wird eine NESTED VM erstellt
-$AdminPassword  = "asdf1234!" # fuer die unattend.xml
-$oemInformation = "OEM Info fuer die unattend Datei"
+$VMPfad     = "d:\vms"
+$vmname     = "v-2025-02-en"
+$Notes      = "Server 2025 Test-VM"
+$cpu        = 4
+$RAM        = 2048MB # dynamischer RAM
+$Storage    = 40GB
+$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26257.iso"
+$SwitchName = "Default Switch"
+$Nested     = 0 # mit 1 wird eine NESTED VM erstellt
+
+$AdminPassword  = "asdf1234!" # fuer die unattend.xml, unbedingt nachher das Password aendern
+
 
 #region Convert-WindowsImage download
 # Download Convert-WindowsImage from MSLAB
@@ -44,8 +46,9 @@ IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Y
  else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts"}
 
 
-$mount      = Mount-DiskImage -ImagePath $isopath  # welcher Laufwerksbuchstabe ?
-$mountLW    = ($mount | get-volume).DriveLetter
+# ISO Datei mounten damit diese in eine vhdx Datei konvertiert werden kann
+$mount      = Mount-DiskImage -ImagePath $isopath
+$mountLW    = ($mount | get-volume).DriveLetter    # Mount Laufwerk in Variable speichern
 $sourcePath = $mountLW+":"+"\sources\install.wim"
 
 Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\$vmname\vhdx\$vmname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
@@ -59,13 +62,16 @@ Set-VM -Name $vmname -AutomaticStartAction Nothing -AutomaticStopAction ShutDown
 # die NIC koennte man auch noch umbenennen
 $NicName = (Get-VMNetworkAdapter -VMName $vmname).Name
 # Rename-VMNetworkAdapter -Name $NicName -VMName $vmname -NewName Management
-Connect-VMNetworkAdapter -Name $NicName -SwitchName "Default Switch" -VMName $vmname
+Connect-VMNetworkAdapter -Name $NicName -SwitchName $SwitchName -VMName $vmname
 
+
+# Nested macht fast nur Sinn wenn in der VM ein Hyper-V installiert wird, daher sollte diese Rolle hier auch gleich eingefuegt werden
 if ($Nested) {
     # nested VM aktivieren
     Set-VMNetworkAdapter -VMName $vmname -Name $NicName -MacAddressSpoofing On
     Set-VMProcessor -VMName $vmname -ExposeVirtualizationExtensions $true
     }
+
 
 #region - unattend.xml Inhalt erstellen
 
@@ -91,9 +97,9 @@ $fileContent =  @"
  <settings pass="specialize">
     <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <ComputerName>$vmname</ComputerName>
-        $oeminformation
-        <RegisteredOwner>PFE</RegisteredOwner>
-        <RegisteredOrganization>Contoso</RegisteredOrganization>
+        <RegisteredOwner>TestOwner</RegisteredOwner>
+        <RegisteredOrganization>TestOrganisation</RegisteredOrganization>
+        <ProductKey>MFY9F-XBN2F-TYFMP-CCV49-RMYVH</ProductKey>
     </component>
  </settings>
  <settings pass="oobeSystem">
@@ -110,6 +116,7 @@ $fileContent =  @"
         <SkipUserOOBE>true</SkipUserOOBE>
       </OOBE>
       <TimeZone>$TimeZone</TimeZone>
+      <ProductKey>MFY9F-XBN2F-TYFMP-CCV49-RMYVH</ProductKey>
     </component>
   </settings>
 </unattend>
@@ -142,9 +149,13 @@ Remove-Item -Path "$vmpfad\$vmname\loeschen"
 
 #endregion
 
-Start-Sleep 5  # diese Zeitverzoegerung ist event nicht unbedingt notwendig. ausser der dismount dauert zu lange und blockiert die vhdx Datei
+Start-Sleep 5  # diese Zeitverzoegerung ist event nicht unbedingt notwendig. ausser der Dismount dauert zu lange und blockiert die vhdx Datei
 
 Start-VM -VMName $vmname
+Start-Sleep 30
 
 # VM Console verbinden
 VMconnect.exe localhost $vmname
+
+# noch ein wenig Audio damit man merkt dass die VM schon laeuft
+[Console]::Beep(900,1000) # Hoehe, Laenge

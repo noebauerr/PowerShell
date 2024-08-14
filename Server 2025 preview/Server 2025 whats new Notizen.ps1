@@ -77,7 +77,7 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ma
 
 
 # AD Security
-# LDAP support für TLS 1.3
+# LDAP support fuer TLS 1.3
 # LDAP encryption by default
 # LDAP channel binding audit support, events 3074 und 3075 (gibts schon seit Server 2022 KB4520412)
 # LDAP add, search, modify sind nur noch erlaubt wenn die Verbindung verschluesselt ist
@@ -165,7 +165,7 @@ Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-ne
 # diskspd.exe -r4k -b4k -t8 -o64 -d60 -Suw #0
 # NVMe-of (over Fabrics) mit TCP/RDMA Support
 
-# REFS Deduplication and Compression (anscheinend total neu geschrieben)
+# REFS Deduplication and Compression (anscheinend total neu geschrieben), Dedup wird jetzt auch auf VM Workload unterstuetzt
 
 # Thin Provisioning jetzt auch im S2D nicht nur im HCI
 
@@ -218,7 +218,7 @@ Start-Process https://learn.microsoft.com/en-us/Windows-server/get-started/remov
 # Wordpad
 # Windows PowerShell 2.0
 # Peer Name Resolution Protocol (PNRP) wurde entfernt wegen DDos Gefahr
-# SMTP-Server
+# SMTP-Server (alternativ kann man folgendes OpenSource SMTPrelay verwenden https://emailrelay.sourceforge.net/)
 # IIS 6 Management Console
 
 # Windows Server Features die veraltet sind
