@@ -4,16 +4,24 @@
 #Requires -RunAsAdministrator
 
 $VMPfad     = "d:\vms"
-$vmname     = "v-2025-02-en"
+$vmname     = "v-2025-01-en"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM
 $Storage    = 40GB
 $isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26257.iso"
 $SwitchName = "Default Switch"
-$Nested     = 0 # mit 1 wird eine NESTED VM erstellt
+$Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
+# der Passwort Teil muss noch angepasst werden damit die Variable $AdminPassword nicht extra befuellt werden muss
+$cred = Get-Credential -Message "Bitte das lokale Adminpasswort fuer die VM eingeben." -UserName administrator
 $AdminPassword  = "asdf1234!" # fuer die unattend.xml, unbedingt nachher das Password aendern
+
+# ToDos
+# Convert-Image nicht jedes Mal ausfuehren
+# Abfragen ob vhdx mit ISO Dateinamen schon vorhanden ist, falls ja dann nicht mehr konvertieren
+# falls nein, dann Konvertieren und als Template abspeichern
+# später dann nur die Template Datei kopieren, was ja viel schneller geht als jedes mal konvertieren
 
 
 #region Convert-WindowsImage download
@@ -142,7 +150,23 @@ Set-Content -path $unattendFile -value $fileContent
 
 Write-Host -ForegroundColor Green "Die UNATTEND.XML wurde jetzt erzeugt."
 
-dism /unmount-image /mountdir:"$vmpfad\$vmname\loeschen" /commit
+
+# if nested dann gleich die Rolle Hyper-V im DISM installieren um sich Neustarts zu sparen
+# event noch abfragen ob auch wirklich alle Voraussetzungen fuer Nested erfuellt sind, zB RAM
+If ($nested){
+    # dism /image:"$vmpfad\$vmname\loeschen" /enable-feature:Microsoft-Hyper-V /ALL
+    Enable-WindowsOptionalFeature -Path "$vmpfad\$vmname\loeschen" -FeatureName Microsoft-Hyper-V
+    # RSAT fuer Hyper-V konnte ich mit diesem Befehl nicht installieren
+}
+
+
+Dism /image:"$vmpfad\$vmname\loeschen" /Set-SysLocale:de-de   # fuer Non-Unicode
+Dism /image:"$vmpfad\$vmname\loeschen" /Set-UserLocale:de-de  # fuer Zeit, Datum, Waehrungs und Nummernformatierung
+Dism /image:"$vmpfad\$vmname\loeschen" /Set-InputLocale:de-de # fuer ein deutsches Tastaturlayout
+Dism /image:"$vmpfad\$vmname\loeschen" /Set-TimeZone:"W. Europe Standard Time"
+
+
+Dism /unmount-image /mountdir:"$vmpfad\$vmname\loeschen" /commit
 Remove-Item -Path "$vmpfad\$vmname\loeschen"
 
 # Dismount-VHD -Path $VMPfad\$vmname\vhdx\$vmname.vhdx
@@ -152,6 +176,7 @@ Remove-Item -Path "$vmpfad\$vmname\loeschen"
 Start-Sleep 5  # diese Zeitverzoegerung ist event nicht unbedingt notwendig. ausser der Dismount dauert zu lange und blockiert die vhdx Datei
 
 Start-VM -VMName $vmname
+Write-Host -ForegroundColor Green "Die VM $vmname wurde gestartet."
 Start-Sleep 30
 
 # VM Console verbinden
@@ -159,3 +184,20 @@ VMconnect.exe localhost $vmname
 
 # noch ein wenig Audio damit man merkt dass die VM schon laeuft
 [Console]::Beep(900,1000) # Hoehe, Laenge
+# msg.exe * "VM laeuft."
+
+
+# RDP aktivieren nachdem die VM Online ist
+do {
+Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
+Start-Sleep 2
+} while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
+
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0}
+Write-Host -ForegroundColor green "RDP Zugriff wurde aktiviert."
+
+# Microsoft Updates aktivieren
+
+# statische IP vergeben, damit die VM ueber RDP sofort erreicht werden kann.
+
+# zusaetzliche Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
