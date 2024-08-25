@@ -23,6 +23,15 @@ $AdminPassword  = "asdf1234!" # fuer die unattend.xml, unbedingt nachher das Pas
 # falls nein, dann Konvertieren und als Template abspeichern
 # später dann nur die Template Datei kopieren, was ja viel schneller geht als jedes mal konvertieren
 
+$startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
+
+
+IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon! Bitte anderen VM Namen verwenden."; Start-Sleep 5; exit}
+ else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts."}
+
+IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
+ else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"}
+
 
 #region Convert-WindowsImage download
 # Download Convert-WindowsImage from MSLAB
@@ -45,27 +54,36 @@ $AdminPassword  = "asdf1234!" # fuer die unattend.xml, unbedingt nachher das Pas
         }
     }
 . $VMPfad\Convert-WindowsImage.ps1
-#endregion
-
-IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
- else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"}
-
-IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon!"; Start-Sleep 15; exit}
- else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts"}
+#endregion 
 
 
-# ISO Datei mounten damit diese in eine vhdx Datei konvertiert werden kann
-$mount      = Mount-DiskImage -ImagePath $isopath
-$mountLW    = ($mount | get-volume).DriveLetter    # Mount Laufwerk in Variable speichern
-$sourcePath = $mountLW+":"+"\sources\install.wim"
+# testen ob vhdx Template schon existiert, falls ja dann nicht mehr neu erzeugen
+$isoname = Split-Path $isopath -Leaf # LeafBase wuerde auch noch die .iso endung entfernen, gibt es aber in PS 5.1 nicht
+$isoname = $isoname.Split(".")       # Dateinamename teilen Name und .iso Endung
+$isoname = $isoname[0]
 
-Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\$vmname\vhdx\$vmname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
+IF (Test-Path "$VMPfad\vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "VHDX-Template $IsoName.vhdx existiert... und weiter gehts."}
+ else {Write-Host -ForegroundColor Yellow "VHDX-Template $IsoName.vhdx existiert noch nicht und wird jetzt erzeugt."
+  # ISO Datei mounten damit diese in eine vhdx Datei konvertiert werden kann
+    $mount      = Mount-DiskImage -ImagePath $isopath
+    $mountLW    = ($mount | get-volume).DriveLetter    # Mount Laufwerk in Variable speichern
+    $sourcePath = $mountLW+":"+"\sources\install.wim"
 
-Dismount-DiskImage -ImagePath $isopath
+    # SizeByte $storage ist fuer das Template nicht optimal, groesse sollte ja erst spaeter pro vm definiert werden
+    Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\vhdx-Template\$isoname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
+
+    Dismount-DiskImage -ImagePath $isopath 
+ }
+
+
+New-Item "$VMPfad\$vmname\vhdx\" -ItemType Directory
+
+Copy-Item "$VMPfad\vhdx-Template\$isoname.vhdx" -Destination "$VMPfad\$vmname\vhdx\$vmname.vhdx"
 
 New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMpfad -Generation 2 -VHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx
 Set-VM -Name $vmname -ProcessorCount $cpu -Notes $notes
 Set-VM -Name $vmname -AutomaticStartAction Nothing -AutomaticStopAction ShutDown -AutomaticCheckpointsEnabled $false
+
 
 # die NIC koennte man auch noch umbenennen
 $NicName = (Get-VMNetworkAdapter -VMName $vmname).Name
@@ -133,7 +151,7 @@ $fileContent =  @"
 
 #endregion
 
-#region - unattend.xml Datei implementieren
+#region - unattend.xml Datei implementieren und VHDX bearbeiten
 
 # die Datei unattend.xml in den Ordner c:\windows\panther oder ins root kopieren
 
@@ -165,7 +183,6 @@ Dism /image:"$vmpfad\$vmname\loeschen" /Set-UserLocale:de-de  # fuer Zeit, Datum
 Dism /image:"$vmpfad\$vmname\loeschen" /Set-InputLocale:de-de # fuer ein deutsches Tastaturlayout
 Dism /image:"$vmpfad\$vmname\loeschen" /Set-TimeZone:"W. Europe Standard Time"
 
-
 Dism /unmount-image /mountdir:"$vmpfad\$vmname\loeschen" /commit
 Remove-Item -Path "$vmpfad\$vmname\loeschen"
 
@@ -182,22 +199,31 @@ Start-Sleep 30
 # VM Console verbinden
 VMconnect.exe localhost $vmname
 
-# noch ein wenig Audio damit man merkt dass die VM schon laeuft
+
+# warten bis die VM Online ist
+do {
+Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
+Start-Sleep 3
+} while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
+
+
+# noch ein wenig Audio damit man merkt dass die VM schon laeuft und bereit ist
 [Console]::Beep(900,1000) # Hoehe, Laenge
 # msg.exe * "VM laeuft."
 
 
-# RDP aktivieren nachdem die VM Online ist
-do {
-Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
-Start-Sleep 2
-} while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
-
+# RDP Zugriff aktivieren
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -DisplayGroup "Remote Desktop"}
 Write-Host -ForegroundColor green "RDP Zugriff wurde aktiviert."
+
 
 # Microsoft Updates aktivieren
 
 # statische IP vergeben, damit die VM ueber RDP sofort erreicht werden kann.
 
 # zusaetzliche Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
+
+
+$Scriptdauer = (get-date) - $startzeit
+Write-Host "Das Sktipt ist "($Scriptdauer).TotalSeconds" Sekunden gelaufen."

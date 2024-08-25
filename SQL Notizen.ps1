@@ -9,6 +9,8 @@ Set-Culture -CultureInfo en-us
 winget install Microsoft.SQLServer.2022.Express --silent --accept-source-agreements
 Set-Culture -CultureInfo de-de
 
+winget install --id Microsoft.SQLServer.2022.Express --exact --override "/ACTION=INSTALL CONFIGURATIONFILE=C:\Temp\sql-express-config.ini /IACCEPTSQLSERVERLICENSETERMS /LANGUAGE=en-US /QUIET"
+
 winget install Microsoft.SQLServerManagementStudio
 
 # TCP aktivieren
@@ -19,9 +21,16 @@ https://learn.microsoft.com/de-de/sql/database-engine/configure-windows/enable-o
 
 # PowerShell Modul SQLServer installieren
 Install-Module sqlserver -AllowClobber -Force
+https://learn.microsoft.com/en-us/powershell/module/sqlserver/?view=sqlserver-ps
 
 https://mail.brycematheson.io/create-sql-server-user-and-add-role-via-powershell/
 https://www.mssqltips.com/sqlservertip/4697/add-remove-and-get-sql-logins-new-sql-powershell-2016-cmdlets/
 
-# Benutzer Login mit PS SQLServer Modul anlegen
-Add-SQLLogin -
+# Benutzer Login mit PS SQLServer Modul anlegen (Module SQLServer notwendig)
+$ServerName = "v-sql"
+$LoginName  = "Domaene\user"
+
+Add-SqlLogin -ServerInstance $ServerName -LoginName $LoginName -LoginType WindowsUser -Enable -Encrypt Optional
+
+$Server = (Get-SqlInstance -ServerInstance $ServerName)
+$server.Roles["sysadmin"].AddMember($LoginName)
