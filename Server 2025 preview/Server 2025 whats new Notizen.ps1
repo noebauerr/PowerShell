@@ -1,4 +1,4 @@
-# Notizen zu den Windows Server 2025 preview Neuerungen (Stand April 2025)
+# Notizen zu den Windows Server 2025 preview Neuerungen (Stand September 2025)
 
 Start-Process https://learn.microsoft.com/en-us/Windows-server/get-started/whats-new-windows-server-insiders-preview
 
@@ -115,7 +115,11 @@ net start wlansvc # service per default auf manual
 # - Microsoft account
 # - Work od school account 
 
+# Credential Guard ist standardmaessig aktiviert, bei einer Cluster-VM wird aber fuer vTPM eine Guarded Facric benoetigt
+
 # File Compression unterstuetzt jetzt ZIP, 7z und TAR
+
+# SSH kann als zusaetzliches Managementprotokoll genutzt werden 
 
 #region SMB
 # SMB over Quick UDP Internet Connection (QUIC) in allen Editionen enthalten
@@ -142,7 +146,7 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-nt
 
 
 # LAPS wurde optimiert
-# Passphrasen statt grauslige komplex Kennwoerter
+# Passphrasen mit 3 bis 10 Woertern statt grauslige komplex Kennwoerter
 # die automatischen Kennwoerter koennen konfiguriert werden dass sie keine 1,i,I,l o,O,0 usw enthalten
 # LAPS AD attribute msLAPS-CurrentPasswordVersion um beim Rollback keine Probleme zu verursachen
  
@@ -172,16 +176,54 @@ Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-ne
 #endregion Storage
 
 
-# Hyper-V erhaelt GPU Partitioning mit Live Migration und Failover Clustering
+#region Hyper-V
+
+# Hyper-V erhaelt GPU Partitioning mit Live Migration und Failover Clustering (Nvidia GPU A- und L-Klasse)
 # Hyper-V ermoeglicht einen Workgroup Cluster mit Zertifikaten gesichert
 # Hyper-V unterstuetzt 2048 virtuelle CPUs und 240 TB RAM in der VM, am Host 4 Petabyte RAM
 Start-Process https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-scalability-in-windows-server?pivots=windows-server-2025
 # Dynamic Processor Compatibility im Cluster
 
+#endregion
 
+
+#region Network ATC
 # Network ATC - one-click deployment across the cluster and drift remediation (vorher nur im Azure Stack HCI)
 # 3 verschiedene Network intents
-# Storage-only, VM traffic, shared management
+# -Management
+# -Compute    (VM Traffic)
+# -Storage    (Storage only)
+Install-WindowsFeature -Name NetworkATC -IncludeManagementTools
+
+# jede NIC darf nur in einem einzigen Network Intent vorkommen, jeder Intent kann mehrere NICs haben
+Get-NetIntent | select IntentName, IntentType, NetAdapterNameCsv
+Add-NetIntent -Name Mgmt -Management -AdapterName NIC1, NIC2
+Add-NetIntent -Name CompMgmt -Management -Compute -AdapterName NIC1, NIC2 # Management und Compute auf die 2 NICs
+Get-NetIntentStatus -Name Mgmt
+
+# jeder Adapter muss auf jedem Knoten den selben Namen haben und auf Status UP sein
+Get-NetAdapter -CimSession (Get-ClusterNode).Name
+
+# in virtuellen Umgebungen muss zuvor der "RDMA-Zwang" deaktiviert werden
+$override = New-NetIntentAdapterPropertyOverrides
+$override.NetworkDirect = 0
+
+Add-NetIntent -Name Storage -Storage -AdapterName NIC2 -AdapterPropertyOverrides $override
+
+Get-Command -Noun NetIntent*Over* -Module NetworkATC
+
+# Um die Bandbreite fuer SMB auf 25 Prozent zu beschraenken, definiert man einen Override folgendermassen:
+$QosOverride = New-NetIntentQosPolicyOverrides
+$QosOverride.BandwidthPercentage_SMB = 25
+
+# Wenn man den Intent bereits angelegt hat, ohne den Override anzugeben, kann man diesen nachtraeglich anwenden:
+Set-NetIntent -Name ComputeStorage -QosPolicyOverrides $QosOverride
+
+# Zusatzinfo zu Network ATC
+https://www.windowspro.de/wolfgang-sommergut/windows-server-2025-netzwerke-cluster-automatisch-konfigurieren-network-atc
+https://learn.microsoft.com/en-us/azure-stack/hci/deploy/network-atc?tabs=22H2#default-network-atc-values
+
+#endregion
 
 
 # Feature Update (= In-Place Update) von Server 2022 koennen wie die Feature updates in Windows 11 installiert werden
@@ -243,3 +285,6 @@ Start-Process https://learn.microsoft.com/de-de/windows/whats-new/removed-featur
 # Test Keys fuer Server 2025 Preview
 # Server 2025 Standard:   MFY9F-XBN2F-TYFMP-CCV49-RMYVH
 # Server 2025 Datacenter: 2KNJJ-33Y9H-2GXGX-KMQWH-G6H67
+
+# die Preview Version kann unter folgendem Link heruntergeladen werden
+Start-Process https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver

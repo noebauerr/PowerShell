@@ -13,7 +13,7 @@ $Notes   = "Server 2025 Test-VM"
 $cpu     = 4
 $RAM     = 2048MB # dynamischer RAM
 $Storage = 40GB
-$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26244.iso"
+$isopath = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26296.iso"
 $Nested  = 0 # mit 1 wird eine NESTED VM erstellt
 
 

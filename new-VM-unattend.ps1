@@ -9,19 +9,21 @@ $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26257.iso"
+$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26296.iso"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
+# $ip  = 192.168.1.10
+# $snm = 255.255.255.0
+
+# App die gleich mit Winget installiert werden soll - sinnvoll ?
+
+# MS Updates gleich aktivieren - wie gehts?
+
 # der Passwort Teil muss noch angepasst werden damit die Variable $AdminPassword nicht extra befuellt werden muss
 $cred = Get-Credential -Message "Bitte das lokale Adminpasswort fuer die VM eingeben." -UserName administrator
-$AdminPassword  = "asdf1234!" # fuer die unattend.xml, unbedingt nachher das Password aendern
+$AdminPassword  = "asdf1234!" # unbedingt nachher das Password aendern da es im Klartext in der unattend.xml steht
 
-# ToDos
-# Convert-Image nicht jedes Mal ausfuehren
-# Abfragen ob vhdx mit ISO Dateinamen schon vorhanden ist, falls ja dann nicht mehr konvertieren
-# falls nein, dann Konvertieren und als Template abspeichern
-# später dann nur die Template Datei kopieren, was ja viel schneller geht als jedes mal konvertieren
 
 $startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
 

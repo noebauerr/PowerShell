@@ -2,23 +2,21 @@ start-process https://github.com/noebauerr/PowerShell
 
 winget upgrade --all
 
-# UniGetUI - war vorher wingetui
-winget install wingetui --id SomePythonThings.WingetUIStore -s winget
+# UniGetUI (war vorher wingetUI)
+winget search UniGetUI
+winget install --id MartiCliment.UniGetUI
 
+# DefenderUI
+winget search DefenderUI
+winget install --id XP8JZNXWS6FB30 --accept-package-agreements
 
-# Remotezeugs
-winget search mRemoteNG
-winget search rdcman
-winget search pRemoteM
-winget search "royal ts"
-winget search "devolutions remote desktop manager"
-
+# Remotezeugs (RDP...)
 winget install mRemoteNG
-winget install "Remote Desktop Connection Manager" #sysinternals rdcman
-winget install 9PNMNF92JNFP # "1Remote (PRemoteM) - mstsc remote desktop"
-winget install "royal ts" --source msstore
+winget install --id Microsoft.Sysinternals.RDCMan       # sysinternals rdcman, wohin wird diese Software installiert?
+winget install 9PNMNF92JNFP --accept-package-agreements # 1Remote (PRemoteM) - mstsc remote desktop
+winget install "royal ts" --source msstore --accept-package-agreements
 
-winget install "Microsoft .NET Windows Desktop Runtime 8.0"
+winget install "Microsoft .NET Windows Desktop Runtime 8.0" # wird von devolutions benoetigt
 winget install "devolutions remote desktop manager" --accept-package-agreements
 
 
@@ -27,11 +25,14 @@ winget search anyBurn   # zB Unattend.xml direkt auf die ISO schreiben
 winget search "ntlite"  # Win Installationsmedium anpassen und Service-Packs, Treiber und Systemkomponenten anpassen
 
 # Benchmark
-winget search cinebench
-winget search CrystalDiskMark
+winget install cinebench --accept-package-agreements # CPU Benchmark
+winget install CrystalDiskMark
 
-# treesize free
-winget install "Treesize Free" --source msstore
+# treesize free wird auf Servern nicht mehr unterstuetzt
+winget install "Treesize Free" --source msstore --accept-package-agreements
+winget install windirstat
+winget install wiztree
+winget install SpaceSniffer
 
 # Github Desktop
 winget install "Github Desktop"
@@ -39,34 +40,42 @@ winget install "Github Desktop"
 # Apple iPad als Zusatzdisplay
 # Spacedesk Windows Driver # von Datronicsoft
 
-# Netzwerk IP Scanner
+# Netzwerk IP-Scanner und Sniffer
 winget install Famatech.AdvancedIPScanner
+winget install Wireshark
 
+# bootfaehige Windows USB Sticks erstellen
+winget install --id Rufus.Rufus
+winget install Ventoy
 
 # Microsoft Zeugs
-winget install "Microsoft Loop"
+winget install "Microsoft Loop" --accept-package-agreements
 winget install "Microsoft Teams" --id Microsoft.Teams --source winget
-winget install onenote
+winget install onenote --accept-package-agreements
 winget install Microsoft.PowerShell  # powershell 7.x
-# sysinternals suite
-winget install "Sysinternals Suite"
-winget install bginfo
-start-process bginfo /accepteula /timer:0
+
+# Sysinternals Suite
+winget install --id Microsoft.Sysinternals --accept-package-agreements
+
+winget install --id Microsoft.Sysinternals.ProcessExplorer
+winget install --id Microsoft.Sysinternals.Autoruns
+winget install --id Microsoft.Sysinternals.BGInfo
+start-process bginfo "/timer:0 /all /accepteula"
 
 # Windows Admin Center
 winget install "Windows Admin Center"
-
-# Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
 
 # Lockoutstatus.exe von Microsoft
 Start-Process https://www.microsoft.com/en-gb/download/details.aspx?id=15201
 Start-Process https://download.microsoft.com/download/c/0/4/c0472410-b4c2-4aef-89d2-e7c708dfc225/lockoutstatus.msi
 
+# Signal Messenger fuer Windows funktioniert auf Server 2025 Preview nicht
+winget install --id OpenWhisperSystems.Signal
 
 
 # PowerShell Modul fuer Winget
 #Requires -RunAsAdministrator
-Install-Module -Name Microsoft.WinGet.Client
+Install-Module -Name Microsoft.WinGet.Client # -conform? -force? # laedt zuerst NuGet Provider nach
 
 get-command *winget*
 
@@ -75,3 +84,6 @@ Get-WinGetPackage
 Update-WinGetPackage
 
 Find-WinGetPackage simulator
+
+
+# Winget Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
