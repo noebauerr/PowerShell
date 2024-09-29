@@ -1,6 +1,6 @@
 start-process https://github.com/noebauerr/PowerShell
 
-winget upgrade --all
+winget upgrade --all --accept-source-agreements # accept-source-agreements ist wichtig da winget sonst nicht startet
 
 # UniGetUI (war vorher wingetUI)
 winget search UniGetUI
@@ -30,6 +30,7 @@ winget install CrystalDiskMark
 
 # treesize free wird auf Servern nicht mehr unterstuetzt
 winget install "Treesize Free" --source msstore --accept-package-agreements
+# welches alternative Tool ist gut?
 winget install windirstat
 winget install wiztree
 winget install SpaceSniffer
