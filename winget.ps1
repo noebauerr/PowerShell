@@ -14,7 +14,7 @@ winget install --id XP8JZNXWS6FB30 --accept-package-agreements
 winget install mRemoteNG
 winget install --id Microsoft.Sysinternals.RDCMan       # sysinternals rdcman, wohin wird diese Software installiert?
 winget install 9PNMNF92JNFP --accept-package-agreements # 1Remote (PRemoteM) - mstsc remote desktop
-winget install "royal ts" --source msstore --accept-package-agreements
+winget install "royal ts" --source msstore --accept-package-agreements # benutzt Carsten Rachfahl
 
 winget install "Microsoft .NET Windows Desktop Runtime 8.0" # wird von devolutions benoetigt
 winget install "devolutions remote desktop manager" --accept-package-agreements
@@ -38,9 +38,6 @@ winget install SpaceSniffer
 # Github Desktop
 winget install "Github Desktop"
 
-# Apple iPad als Zusatzdisplay
-# Spacedesk Windows Driver # von Datronicsoft
-
 # Netzwerk IP-Scanner und Sniffer
 winget install Famatech.AdvancedIPScanner
 winget install Wireshark
@@ -50,7 +47,7 @@ winget install --id Rufus.Rufus
 winget install Ventoy
 
 # Microsoft Zeugs
-winget install "Microsoft Loop" --accept-package-agreements
+winget install "Microsoft Loop"  --accept-package-agreements
 winget install "Microsoft Teams" --id Microsoft.Teams --source winget
 winget install onenote --accept-package-agreements
 winget install Microsoft.PowerShell  # powershell 7.x
@@ -73,6 +70,9 @@ Start-Process https://download.microsoft.com/download/c/0/4/c0472410-b4c2-4aef-8
 # Signal Messenger fuer Windows funktioniert auf Server 2025 Preview nicht
 winget install --id OpenWhisperSystems.Signal
 
+# Winget Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
+
+
 
 # PowerShell Modul fuer Winget
 #Requires -RunAsAdministrator
@@ -84,7 +84,4 @@ Get-WinGetPackage
 
 Update-WinGetPackage
 
-Find-WinGetPackage simulator
-
-
-# Winget Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
+Find-WinGetPackage PRTG

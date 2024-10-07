@@ -142,6 +142,7 @@ $fileContent =  @"
         <HideEULAPage>true</HideEULAPage>
         <SkipMachineOOBE>true</SkipMachineOOBE>
         <SkipUserOOBE>true</SkipUserOOBE>
+        <ProtectYourPC>3</ProtectYourPC>
       </OOBE>
       <TimeZone>$TimeZone</TimeZone>
       <ProductKey>MFY9F-XBN2F-TYFMP-CCV49-RMYVH</ProductKey>
@@ -216,13 +217,20 @@ Start-Sleep 3
 
 # RDP Zugriff aktivieren
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0}
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -DisplayGroup "Remote Desktop"}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -Name "RemoteDesktop-UserMode-In-UDP"}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -Name "RemoteDesktop-UserMode-In-TCP"}
 Write-Host -ForegroundColor green "RDP Zugriff wurde aktiviert."
 
 
 # Microsoft Updates aktivieren
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings' -Name 'AllowMUUpdateService' -Value 1}
 
-# statische IP vergeben, damit die VM ueber RDP sofort erreicht werden kann.
+
+# statische IP konfigurieren falls Variable gesetzt, damit die VM ueber RDP sofort erreicht werden kann.
+if ($ip) {
+    write-Host -ForegroundColor Yellow "es wird eine statische IP Adresse konfiguriert"
+    }
+
 
 # zusaetzliche Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
 
