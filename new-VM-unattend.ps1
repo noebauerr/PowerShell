@@ -1,4 +1,5 @@
 # eine VM automatisch erstellen wo nur wenig abgefragt wird
+# hauptsaechlich mit Server 2025 getestet
 
 # muss als Administrator ausgefuehrt werden
 #Requires -RunAsAdministrator
@@ -18,7 +19,6 @@ $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle e
 
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
-# MS Updates gleich aktivieren - wie gehts?
 
 # der Passwort Teil muss noch angepasst werden damit die Variable $AdminPassword nicht extra befuellt werden muss
 $cred = Get-Credential -Message "Bitte das lokale Adminpasswort fuer die VM eingeben." -UserName administrator
@@ -26,7 +26,6 @@ $AdminPassword  = "asdf1234!" # unbedingt nachher das Password aendern da es im 
 
 
 $startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
-
 
 IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon! Bitte anderen VM Namen verwenden."; Start-Sleep 5; exit}
  else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts."}
@@ -60,7 +59,7 @@ IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundCol
 
 
 # testen ob vhdx Template schon existiert, falls ja dann nicht mehr neu erzeugen
-$isoname = Split-Path $isopath -Leaf # LeafBase wuerde auch noch die .iso endung entfernen, gibt es aber in PS 5.1 nicht
+$isoname = Split-Path $isopath -Leaf # LeafBase wuerde auch noch die .iso Endung entfernen, gibt es aber in PS 5.1 nicht
 $isoname = $isoname.Split(".")       # Dateinamename teilen Name und .iso Endung
 $isoname = $isoname[0]
 
