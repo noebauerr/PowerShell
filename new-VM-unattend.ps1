@@ -1,6 +1,8 @@
 # eine VM automatisch erstellen wo nur wenig abgefragt wird
 # hauptsaechlich mit Server 2025 getestet
 
+param([string]$Dateiname)
+
 # muss als Administrator ausgefuehrt werden
 #Requires -RunAsAdministrator
 
@@ -10,7 +12,7 @@ $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26296.iso"
+$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26304.iso"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
@@ -20,9 +22,22 @@ $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle e
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
 
-# der Passwort Teil muss noch angepasst werden damit die Variable $AdminPassword nicht extra befuellt werden muss
-$cred = Get-Credential -Message "Bitte das lokale Adminpasswort fuer die VM eingeben." -UserName administrator
-$AdminPassword  = "asdf1234!" # unbedingt nachher das Password aendern da es im Klartext in der unattend.xml steht
+# falls ein Dateiname uebergeben wurde dann die Variablen aus dieser Datei laden
+if ($dateiname) {
+    Write-Host -ForegroundColor Green "Dateiname wurde übergeben: $Dateiname"
+    . "$PSScriptRoot\$dateiname" # Datei ausfuehren und dadurch die default Variablen ueberschreiben
+} else {
+    Write-Host "Es wurde kein Dateiname uebergeben, es werden die Variablen dieser Datei verwendet."
+}
+
+
+# unbedingt nachher das Passwort aendern da es im Klartext in der unattend.xml steht
+$AdminPassword  = "asdf1234!"
+
+# SecureString fuer das PW erstellen
+$securePassword = ConvertTo-SecureString $AdminPassword -AsPlainText -Force
+# jetzt noch ein PSCredential-Objekt mit Benutzername und SecureString-Passwort erstellen
+$cred = New-Object System.Management.Automation.PSCredential ("Administrator", $securePassword)
 
 
 $startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
@@ -212,6 +227,9 @@ Start-Sleep 3
 # noch ein wenig Audio damit man merkt dass die VM schon laeuft und bereit ist
 [Console]::Beep(900,1000) # Hoehe, Laenge
 # msg.exe * "VM laeuft."
+Add-Type -AssemblyName System.Speech
+$speaker = New-Object System.Speech.Synthesis.SpeechSynthesizer
+$speaker.Speak("Die virtuelle Maschine $vmname ist jetzt installiert und du kannst dich anmelden.")
 
 
 # RDP Zugriff aktivieren
@@ -230,9 +248,14 @@ if ($ip) {
     write-Host -ForegroundColor Yellow "es wird eine statische IP Adresse konfiguriert"
     }
 
+# den Microsoft Edge Assistenten beim erstmaligen Start deaktivieren
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {New-Item -Path 'HKLM:Software\Policies\Microsoft\Edge\'}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:Software\Policies\Microsoft\Edge' -Name "HideFirstRunExperience" -Value 1}
+Write-Host -ForegroundColor Green "der nervige Microsoft Edge Assistent beim ersten Start wurde deaktiviert"
 
-# zusaetzliche Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
+# zusaetzliche lokale Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
+# wenn Domaenenbenutzer in zu den Admins hinzugefuegt werden sollen, dann wird zuerst ein Domainjoin benoetigt.
 
 
 $Scriptdauer = (get-date) - $startzeit
-Write-Host "Das Sktipt ist "($Scriptdauer).TotalSeconds" Sekunden gelaufen."
+Write-Host -ForegroundColor Cyan "`nDas Skript ist "($Scriptdauer).TotalSeconds" Sekunden gelaufen."

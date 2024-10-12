@@ -21,7 +21,7 @@ Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-11-en
 # 22000 - 21H2 - EOS Oktober 2023,  Enterprise Oktober 2024 
 # 22621 - 22H2 - EOS Oktober 2024,  Enterprise Oktober 2025
 # 22631 - 23H2 - EOS November 2025, Enterprise November 2026
-# 26100?? - 24H2 - EOS
+# 26100 - 24H2 - EOS Oktober 2026,  Enterprise Oktober 2027
 
 
 # Server OS Supportende
@@ -36,7 +36,7 @@ Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-11-en
 # 2016  14.Oktober 2025
 # 2019  14.Oktober 2025
 # 2021  13.Oktober 2026 (Mainstream End Date = Extended End Date)
-# 2024
+# 2024   9.Oktober 2029
 
 
 # Betriebssystem Versionen auflisten
