@@ -7,12 +7,12 @@ param([string]$Dateiname)
 #Requires -RunAsAdministrator
 
 $VMPfad     = "d:\vms"
-$vmname     = "v-2025-01-en"
+$vmname     = "v-2025-02-de"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_en-us_26304.iso"
+$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26304.iso"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
@@ -85,14 +85,19 @@ IF (Test-Path "$VMPfad\vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyContinu
     $mountLW    = ($mount | get-volume).DriveLetter    # Mount Laufwerk in Variable speichern
     $sourcePath = $mountLW+":"+"\sources\install.wim"
 
-    # SizeByte $storage ist fuer das Template nicht optimal, groesse sollte ja erst spaeter pro vm definiert werden
+    # SizeByte $storage ist fuer das Template nicht optimal, Groesse sollte ja erst spaeter pro VM definiert werden
     Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\vhdx-Template\$isoname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
 
     Dismount-DiskImage -ImagePath $isopath 
  }
 
+# Abfragen ob es den Pfad schon gibt, dann gab es schon mal eine VM mit diesem Name und es bestehen noch Reste davon
+IF (Test-Path "$VMPfad\$vmname\vhdx\") {
+    Write-Host -ForegroundColor Yellow "Der Pfad '$VMPfad\$vmname\vhdx\' existiert schon und muss vorher bereinigt werden."; exit}
+ELSE {
+    New-Item "$VMPfad\$vmname\vhdx\" -ItemType Directory 
+}
 
-New-Item "$VMPfad\$vmname\vhdx\" -ItemType Directory
 
 Copy-Item "$VMPfad\vhdx-Template\$isoname.vhdx" -Destination "$VMPfad\$vmname\vhdx\$vmname.vhdx"
 
@@ -211,7 +216,7 @@ Start-Sleep 5  # diese Zeitverzoegerung ist event nicht unbedingt notwendig. aus
 
 Start-VM -VMName $vmname
 Write-Host -ForegroundColor Green "Die VM $vmname wurde gestartet."
-Start-Sleep 30
+Start-Sleep 40
 
 # VM Console verbinden
 VMconnect.exe localhost $vmname
@@ -220,7 +225,7 @@ VMconnect.exe localhost $vmname
 # warten bis die VM Online ist
 do {
 Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
-Start-Sleep 3
+Start-Sleep 4
 } while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
 
 
@@ -229,10 +234,10 @@ Start-Sleep 3
 # msg.exe * "VM laeuft."
 Add-Type -AssemblyName System.Speech
 $speaker = New-Object System.Speech.Synthesis.SpeechSynthesizer
-$speaker.Speak("Die virtuelle Maschine $vmname ist jetzt installiert und du kannst dich anmelden.")
+$speaker.Speak("Die virtuelle Maschine ist jetzt installiert und du kannst dich anmelden.")
 
 
-# RDP Zugriff aktivieren
+# RDP Zugriff aktivieren (dadurch funktioniert auch die "Erweitere Sitzung" in der Hyper-V Console
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0}
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -Name "RemoteDesktop-UserMode-In-UDP"}
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -Name "RemoteDesktop-UserMode-In-TCP"}
@@ -248,10 +253,16 @@ if ($ip) {
     write-Host -ForegroundColor Yellow "es wird eine statische IP Adresse konfiguriert"
     }
 
+
 # den Microsoft Edge Assistenten beim erstmaligen Start deaktivieren
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {New-Item -Path 'HKLM:Software\Policies\Microsoft\Edge\'}
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:Software\Policies\Microsoft\Edge' -Name "HideFirstRunExperience" -Value 1}
 Write-Host -ForegroundColor Green "der nervige Microsoft Edge Assistent beim ersten Start wurde deaktiviert"
+
+
+# die UNATTEND.XML aus dem Root loeschen da dort das urspruengliche Passwort steht
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-Item -Path 'c:\unattend.xml' -force} 
+
 
 # zusaetzliche lokale Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
 # wenn Domaenenbenutzer in zu den Admins hinzugefuegt werden sollen, dann wird zuerst ein Domainjoin benoetigt.

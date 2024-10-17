@@ -237,7 +237,8 @@ https://learn.microsoft.com/en-us/azure-stack/hci/deploy/network-atc?tabs=22H2#d
 
 # Windows Server 2025 security baseline schon jetzt verfuegbar (nicht erst Monate nach erscheinen des OS)
 # arbeitet wie DSC und stellt den urspruenglichen Zustand immer wieder her
-# start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.19-preview
+Start-Process https://techcommunity.microsoft.com/t5/windows-server-insiders/announcing-windows-server-2025-security-baseline-preview/m-p/4257686
+# start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.215
 Find-Module -Name PowerShellGet | Install-Module
 # jetzt die PowerShell schliessen und neu oeffnen
 Install-Module -Name Microsoft.OSConfig -AllowPrerelease -Force
