@@ -7,12 +7,12 @@ param([string]$Dateiname)
 #Requires -RunAsAdministrator
 
 $VMPfad     = "d:\vms"
-$vmname     = "v-2025-02-de"
+$vmname     = "v-2025-01-en"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025 Preview\Windows_InsiderPreview_Server_vNext_de-de_26304.iso"
+$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2_64Bit_English_November.ISO"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
@@ -146,7 +146,7 @@ $fileContent =  @"
         <ComputerName>$vmname</ComputerName>
         <RegisteredOwner>TestOwner</RegisteredOwner>
         <RegisteredOrganization>TestOrganisation</RegisteredOrganization>
-        <ProductKey>MFY9F-XBN2F-TYFMP-CCV49-RMYVH</ProductKey>
+        <ProductKey>WWVGQ-PNHV9-B89P4-8GGM9-9HPQ4</ProductKey>
     </component>
  </settings>
  <settings pass="oobeSystem">

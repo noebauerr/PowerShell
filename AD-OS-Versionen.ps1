@@ -28,7 +28,7 @@ Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-11-en
 # 2016      12.01.2027
 # 2019       9.01.2029
 # 2022      14.10.2031
-# 2025
+# 2025      10.10.2034
 
 
 # Office End of Support
