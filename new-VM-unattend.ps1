@@ -1,5 +1,5 @@
-# eine VM automatisch erstellen wo nur wenig abgefragt wird
-# hauptsaechlich mit Server 2025 getestet
+# eine Server 2025 VM automatisch erstellen
+# https://github.com/noebauerr/PowerShell   (hier findet man die aktuelle Version)
 
 param([string]$Dateiname)
 
@@ -21,13 +21,15 @@ $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle e
 
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
+Clear-Host
+Write-Host -ForegroundColor Green "Skriptversion vom 6.11.2024`n"
 
 # falls ein Dateiname uebergeben wurde dann die Variablen aus dieser Datei laden
 if ($dateiname) {
     Write-Host -ForegroundColor Green "Dateiname wurde übergeben: $Dateiname"
     . "$PSScriptRoot\$dateiname" # Datei ausfuehren und dadurch die default Variablen ueberschreiben
 } else {
-    Write-Host "Es wurde kein Dateiname uebergeben, es werden die Variablen dieser Datei verwendet."
+    Write-Host "Es wurde kein Dateiname an dieses Skript uebergeben, es werden die Variablen dieser Datei verwendet."
 }
 
 
@@ -46,7 +48,7 @@ IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Y
  else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts."}
 
 IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
- else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"}
+ else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"; Start-Sleep 5; exit}
 
 
 #region Convert-WindowsImage download
@@ -224,7 +226,7 @@ VMconnect.exe localhost $vmname
 
 # warten bis die VM Online ist
 do {
-Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
+Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar. Event Firewall-Settings aendern."
 Start-Sleep 4
 } while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
 
