@@ -51,6 +51,15 @@ IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundCol
  else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"; Start-Sleep 5; exit}
 
 
+# testen ob der Switch auf diesem System existiert
+IF (get-vmswitch $SwitchName) {
+    Write-Host -ForegroundColor Green "Switch $Switchname existiert."
+}
+else {
+    Write-Host -ForegroundColor Red "Switch $Switchname existiert auf diesem System nicht."; Start-Sleep 5; exit
+}
+
+
 #region Convert-WindowsImage download
 # Download Convert-WindowsImage from MSLAB
     Write-host "Testing Convert-windowsimage presence"
