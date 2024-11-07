@@ -91,14 +91,14 @@ $isoname = $isoname[0]
 
 # x-vhdx template wurde nur gewaehlt damit der Ordner am Ende der VM Liste angezeigt wird
 IF (Test-Path "$VMPfad\x-vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "x-VHDX-Template $IsoName.vhdx existiert... und weiter gehts."}
- else {Write-Host -ForegroundColor Yellow "VHDX-Template $IsoName.vhdx existiert noch nicht und wird jetzt erzeugt."
+ else {Write-Host -ForegroundColor Yellow "x-VHDX-Template $IsoName.vhdx existiert noch nicht und wird jetzt erzeugt."
   # ISO Datei mounten damit diese in eine vhdx Datei konvertiert werden kann
     $mount      = Mount-DiskImage -ImagePath $isopath
     $mountLW    = ($mount | get-volume).DriveLetter    # Mount Laufwerk in Variable speichern
     $sourcePath = $mountLW+":"+"\sources\install.wim"
 
     # SizeByte $storage ist fuer das Template nicht optimal, Groesse sollte ja erst spaeter pro VM definiert werden
-    Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\vhdx-Template\$isoname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
+    Convert-WindowsImage -SourcePath $sourcePath -Edition 2 -VHDPath "$VMPfad\x-vhdx-Template\$isoname.vhdx" -SizeBytes $Storage -VHDFormat VHDX -DiskLayout UEFI
 
     Dismount-DiskImage -ImagePath $isopath 
  }
