@@ -22,7 +22,7 @@ $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle e
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
 Clear-Host
-Write-Host -ForegroundColor Green "Skriptversion vom 6.11.2024`n"
+Write-Host -ForegroundColor Green "Skriptversion vom 7.11.2024`n"
 
 # falls ein Dateiname uebergeben wurde dann die Variablen aus dieser Datei laden
 if ($dateiname) {
@@ -89,7 +89,8 @@ $isoname = Split-Path $isopath -Leaf # LeafBase wuerde auch noch die .iso Endung
 $isoname = $isoname.Split(".")       # Dateinamename teilen Name und .iso Endung
 $isoname = $isoname[0]
 
-IF (Test-Path "$VMPfad\vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "VHDX-Template $IsoName.vhdx existiert... und weiter gehts."}
+# x-vhdx template wurde nur gewaehlt damit der Ordner am Ende der VM Liste angezeigt wird
+IF (Test-Path "$VMPfad\x-vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "x-VHDX-Template $IsoName.vhdx existiert... und weiter gehts."}
  else {Write-Host -ForegroundColor Yellow "VHDX-Template $IsoName.vhdx existiert noch nicht und wird jetzt erzeugt."
   # ISO Datei mounten damit diese in eine vhdx Datei konvertiert werden kann
     $mount      = Mount-DiskImage -ImagePath $isopath
@@ -235,7 +236,7 @@ VMconnect.exe localhost $vmname
 
 # warten bis die VM Online ist
 do {
-Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar. Event Firewall-Settings aendern."
+Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
 Start-Sleep 4
 } while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
 
