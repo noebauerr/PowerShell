@@ -1,4 +1,6 @@
 # eine Server 2025 VM automatisch erstellen
+
+Write-Host "Skriptversion vom 13.11.2024"
 # https://github.com/noebauerr/PowerShell   (hier findet man die aktuelle Version)
 
 param([string]$Dateiname)
@@ -211,7 +213,6 @@ If ($nested){
     # RSAT fuer Hyper-V konnte ich mit diesem Befehl nicht installieren
 }
 
-
 Dism /image:"$vmpfad\$vmname\loeschen" /Set-SysLocale:de-de   # fuer Non-Unicode
 Dism /image:"$vmpfad\$vmname\loeschen" /Set-UserLocale:de-de  # fuer Zeit, Datum, Waehrungs und Nummernformatierung
 Dism /image:"$vmpfad\$vmname\loeschen" /Set-InputLocale:de-de # fuer ein deutsches Tastaturlayout
@@ -275,6 +276,12 @@ Write-Host -ForegroundColor Green "der nervige Microsoft Edge Assistent beim ers
 # die UNATTEND.XML aus dem Root loeschen da dort das urspruengliche Passwort steht
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-Item -Path 'c:\unattend.xml' -force} 
 
+
+# unnoetige Features deinstallieren
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsFeature “XPS-Viewer”,”Wireless-Networking”,”WindowsAdminCenterSetup”,”System-DataArchiver”}
+
+# und SNMP-WMI Feature installieren
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature “SNMP-WMI-Provider”}
 
 # zusaetzliche lokale Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
 # wenn Domaenenbenutzer in zu den Admins hinzugefuegt werden sollen, dann wird zuerst ein Domainjoin benoetigt.

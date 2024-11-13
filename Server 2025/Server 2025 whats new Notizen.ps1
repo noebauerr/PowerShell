@@ -1,6 +1,6 @@
-# Notizen zu den Windows Server 2025 preview Neuerungen (Stand September 2025)
+# Notizen zu den Windows Server 2025 Neuerungen (Stand November 2024)
 
-Start-Process https://learn.microsoft.com/en-us/Windows-server/get-started/whats-new-windows-server-insiders-preview
+Start-Process https://learn.microsoft.com/en-us/windows-server/get-started/whats-new-windows-server-2025
 
 # hier noch mal eine schoene Zusammenfassung der neuen Funktionen
 Start-Process https://www.virtualizationhowto.com/2024/03/windows-server-2025-vs-windows-server-2022/
@@ -14,11 +14,12 @@ Start-Process https://www.youtube.com/watch?v=j470Tp4b6es
 # kein Neustart notwendig (ausser alle 3 Monate und bei zB .net Updates) 
 
 # bisher nur mit Windows Server 2022 Azure Edition moeglich
-# ab Server 2025 fuer physische und virtuelle System, egal so sie betrieben werden moeglich
+# ab Server 2025 fuer physische und virtuelle System, egal wo sie betrieben werden moeglich
 # nur im Azure Portal mit ARC Anbindung moeglich
 # nur fuer einen noch unbekannten monatlichen Betrag (ausser bei Azure und Azure Stack HCI)
 
 #endregion
+
 
 #region Active Directory
 
@@ -36,7 +37,7 @@ Start-Process https://www.virtualizationhowto.com/2024/03/windows-server-2025-ac
 # sch89.ldf, sch90.ldf, sch91.ldf
 
 
-# jetzt werden alle Prozessorgruppen angsprochen, nicht nur NUMA 0,
+# jetzt werden alle Prozessorgruppen angesprochen, nicht nur NUMA 0,
 # daher koennen jetzt mehrere Sockel benutzt werden (> 64 Cores moeglich)
 
 
@@ -60,7 +61,7 @@ Start-Process https://4sysops.com/archives/delegated-managed-service-accounts-in
 # c:\Windows\NTDS
 esentutl /mh ntds.dit /vss
 # cbDbPage: 32768 
-# 32k nur bei neuen Forests, bei bestehenden Forests muss von Hand updated werden.
+# 32k nur bei neuen Forests, bei bestehenden Forests muss von Hand upgedated werden
 
 $Parameter = @{
 Identity = 'Database 32k Pages Feature'
@@ -71,7 +72,7 @@ Server = 'v-dc1'}  # fuer jeden Server
 Enable-ADOptionalFeature @Parameter # wird auch fuer den Recycle Bin verwendet
 
 
-# DC-location Algorythmus wurde verbessert
+# DC-location Algorithmus wurde verbessert
 # WINS und Mailslots sind "depricated"
 Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/dc-locator-changes
 
@@ -99,14 +100,20 @@ Start-Process https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/ma
 
 Start-Process https://learn.microsoft.com/en-us/azure/azure-arc/servers/onboard-windows-server
 
+# Deinstallation des AzureArcSetup mit der PowerShell
+Disable-WindowsOptionalFeature -Online -FeatureName AzureArcSetup
+
+# Deinstallation mit DISM
+DISM /online /Remove-Capability /CapabilityName:AzureArcSetup~~~~
+ 
 #endregion
 
 # Bluetooth Devices werden jetzt unterstuetzt
 
 # WLAN Service
-net start wlansvc # service per default auf manual
+net start wlansvc # service per default auf manual start
 
-# Windows 11 Optik und auch neuen Task Manager
+# Windows 11 Optik und neuen Task Manager
 # Das Setup wurde an die Windows 11 Optik und Funktionen angepasst
 
 # folgende Accounts koennen im Server 2025 hinzugefuegt werden
@@ -117,7 +124,7 @@ net start wlansvc # service per default auf manual
 
 # Credential Guard ist standardmaessig aktiviert, bei einer Cluster-VM wird aber fuer vTPM eine Guarded Facric benoetigt
 
-# File Compression unterstuetzt jetzt ZIP, 7z und TAR
+# File Compression unterstuetzt jetzt ZIP, 7z und TAR (RAR kann nur entkomprimiert werden?)
 
 # SSH kann als zusaetzliches Managementprotokoll genutzt werden 
 
@@ -125,7 +132,7 @@ net start wlansvc # service per default auf manual
 # SMB over Quick UDP Internet Connection (QUIC) in allen Editionen enthalten
 # TLS Verschluesselung und daher kein VPN noetig
 # weniger Latenz
-# Die Konfiguration ist aber schon "anspruchsvoll"
+# Die Konfiguration ist aber "anspruchsvoll"
 Start-Process https://learn.microsoft.com/en-us/Windows-server/storage/file-server/smb-over-quic
 Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-over-quic-now-available-in-windows-server-insider-datacenter/ba-p/3975242
 # event im WAC doch nicht sooo kompliziert!?
@@ -135,7 +142,7 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-ov
 # SMB authentication Rate Limiter (default auf 2 Sekunden)
 Get-SmbServerConfiguration
 Set-SmbServerConfiguration -InvalidAuthenticationDelayTimeInMs 2000 # in Millisekunden, 0 = disabled
-Start-Process https://www.youtube.com/watch?v=3YT18BiNOKM&t=5s
+Start-Process https://www.youtube.com/watch?v=3YT18BiNOKM
 
 # SMB NTLM blocking
 Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-ntlm-blocking-now-supported-in-windows-insider/ba-p/3916206
@@ -146,12 +153,12 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-nt
 
 
 # LAPS wurde optimiert
-# Passphrasen mit 3 bis 10 Woertern statt grauslige komplex Kennwoerter
+# Passphrasen mit 3 bis 10 Woertern statt komplexe Kennwoerter
 # die automatischen Kennwoerter koennen konfiguriert werden dass sie keine 1,i,I,l o,O,0 usw enthalten
-# LAPS AD attribute msLAPS-CurrentPasswordVersion um beim Rollback keine Probleme zu verursachen
+# LAPS AD Attribute msLAPS-CurrentPasswordVersion um beim Rollback keine Probleme zu verursachen
  
 
-# Winget Support juhuuuu
+# Winget Support (juhuuuu)
 winget install Microsoft.Sysinternals.ProcessMonitor
 
 # bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden bei einer SQL 2022 Installation
@@ -220,14 +227,14 @@ $QosOverride.BandwidthPercentage_SMB = 25
 Set-NetIntent -Name ComputeStorage -QosPolicyOverrides $QosOverride
 
 # Zusatzinfo zu Network ATC
-https://www.windowspro.de/wolfgang-sommergut/windows-server-2025-netzwerke-cluster-automatisch-konfigurieren-network-atc
-https://learn.microsoft.com/en-us/azure-stack/hci/deploy/network-atc?tabs=22H2#default-network-atc-values
+Start-Process https://www.windowspro.de/wolfgang-sommergut/windows-server-2025-netzwerke-cluster-automatisch-konfigurieren-network-atc
+Start-Process https://learn.microsoft.com/en-us/azure-stack/hci/deploy/network-atc?tabs=22H2#default-network-atc-values
 
 #endregion
 
 
 # Feature Update (= In-Place Update) von Server 2022 koennen wie die Feature updates in Windows 11 installiert werden
-# funktioniert derzeit bei 96% der Systeme, bei einem Error rollback (zumindest meistens)
+# funktioniert derzeit (Stand Sept. 2024) bei 96% der Systeme, bei einem Error rollback (zumindest meistens)
 # es gibt kein zurueck
 # S2D Cluster koennen auch im laufenden Betrieb aktualisiert werden
 # Microsofts strong recommendation: BACKUP !
@@ -238,21 +245,30 @@ https://learn.microsoft.com/en-us/azure-stack/hci/deploy/network-atc?tabs=22H2#d
 # Windows Server 2025 security baseline schon jetzt verfuegbar (nicht erst Monate nach erscheinen des OS)
 # arbeitet wie DSC und stellt den urspruenglichen Zustand immer wieder her
 Start-Process https://techcommunity.microsoft.com/t5/windows-server-insiders/announcing-windows-server-2025-security-baseline-preview/m-p/4257686
-# start-process https://www.powershellgallery.com/packages/Microsoft.OSConfig/0.1.215
+Start-Process https://www.powershellgallery.com/packages/Microsoft.OSConfig
+
+# muss PowerShellGet noch extra installiert werden?
 Find-Module -Name PowerShellGet | Install-Module
 # jetzt die PowerShell schliessen und neu oeffnen
-Install-Module -Name Microsoft.OSConfig -AllowPrerelease -Force
-Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Default -Force
-Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer -Name FirewallPublicProfileState -Value 1 -Force
-Get-OSConfigDesiredConfiguration -Scenario SecurityBaseline/WindowsServer2025/MemberServer | ft name
+
+Install-Module -Name Microsoft.OSConfig # -Force
+
+Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline\WS2025\MemberServer -Default # -Force
+Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline\WS2025\WorkgroupMember -Default
+
+Set-OSConfigDesiredConfiguration -Scenario SecurityBaseline\WS2025\WorkgroupMember -Name FirewallPublicProfileState -Value 1 -Force
+
+Get-OsConfigDesiredConfiguration -Scenario SecurityBaseline\WS2025\WorkgroupMember | Ft Name
 
 
-# PowerShell
-# neue Module: DefenderPerformance, ReFSDedup ...
+# PowerShell - neue Module:
+# - DefenderPerformance
+# - Microsoft.ReFsDedup.Commands
+# - Microsoft.Windows.BCD.Cmdlets
+# - Provisioning - zum Managen von provisioning packages 
 
 
-# Application control
-# enabled in Audit mode
+# Application control - enabled in Audit mode
 # Azure Monitor workbook wird dazu benoetigt
 
 
@@ -272,20 +288,18 @@ Start-Process https://learn.microsoft.com/de-de/windows-server/get-started/remov
 # WEBdav Redirector Service
 
 
-# Windows Funktionen lifecycle
+# Windows-Client Funktionen lifecycle
 Start-Process https://learn.microsoft.com/de-de/windows/whats-new/feature-lifecycle
 
-# Liste der veralteten Windows features
+# Liste der veralteten Windows-Client features
 Start-Process https://learn.microsoft.com/de-de/windows/whats-new/deprecated-features
 # WebDAV ist veraltet (November 2023)
 
-# Windows Funktionen die entfernt wurden nachdem sie auf der veraltet Liste standen
+# Windows-Client Funktionen die entfernt wurden nachdem sie auf der veraltet-Liste standen
 Start-Process https://learn.microsoft.com/de-de/windows/whats-new/removed-features
 
 
-# Test Keys fuer Server 2025 Preview
-# Server 2025 Standard:   MFY9F-XBN2F-TYFMP-CCV49-RMYVH
-# Server 2025 Datacenter: 2KNJJ-33Y9H-2GXGX-KMQWH-G6H67
-
-# die Preview Version kann unter folgendem Link heruntergeladen werden
-Start-Process https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
+# Windows Server 2025 AVMA-Keys
+# Server 2025 Standard:   WWVGQ-PNHV9-B89P4-8GGM9-9HPQ4
+# Server 2025 Datacenter: YQB4H-NKHHJ-Q6K4R-4VMY6-VCH67
+# slmgr /ipk <AVMA-Key>
