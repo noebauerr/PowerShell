@@ -1,20 +1,20 @@
-# eine Server 2025 VM automatisch erstellen
+# eine Server 2025 VM ohne Benutzerinteraktion installieren
 
-Write-Host "Skriptversion vom 13.11.2024"
-# https://github.com/noebauerr/PowerShell   (hier findet man die aktuelle Version)
-
-param([string]$Dateiname)
+# Hier liegt die aktuelle Version des Skripts
+# https://github.com/noebauerr/PowerShell
 
 # muss als Administrator ausgefuehrt werden
 #Requires -RunAsAdministrator
 
+param([string]$Dateiname)
+
 $VMPfad     = "d:\vms"
-$vmname     = "v-2025-01-en"
+$vmname     = "v-2025-01-de"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
-$RAM        = 2048MB # dynamischer RAM
+$RAM        = 2048MB # statischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2_64Bit_English_November.ISO"
+$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2_64Bit_German_November.ISO"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
@@ -24,7 +24,7 @@ $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle e
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
 Clear-Host
-Write-Host -ForegroundColor Green "Skriptversion vom 7.11.2024`n"
+Write-Host -ForegroundColor Green "Skriptversion vom 27.11.2024`n"
 
 # falls ein Dateiname uebergeben wurde dann die Variablen aus dieser Datei laden
 if ($dateiname) {
@@ -65,7 +65,7 @@ else {
 #region Convert-WindowsImage download
 # Download Convert-WindowsImage from MSLAB
     Write-host "Testing Convert-windowsimage presence"
-    $convertWindowsImagePath = "$VMPfad\Convert-WindowsImage.ps1"
+    $convertWindowsImagePath = "$VMPfad\x-vhdx-Template\Convert-WindowsImage.ps1"
     
     If (Test-Path -Path $convertWindowsImagePath) {
         Write-Host -ForegroundColor Green "`t Convert-windowsimage.ps1 is present, skipping download"
@@ -82,7 +82,7 @@ else {
             }
         }
     }
-. $VMPfad\Convert-WindowsImage.ps1
+. "$VMPfad\x-vhdx-Template\Convert-WindowsImage.ps1"
 #endregion 
 
 
@@ -107,13 +107,13 @@ IF (Test-Path "$VMPfad\x-vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyConti
 
 # Abfragen ob es den Pfad schon gibt, dann gab es schon mal eine VM mit diesem Name und es bestehen noch Reste davon
 IF (Test-Path "$VMPfad\$vmname\vhdx\") {
-    Write-Host -ForegroundColor Yellow "Der Pfad '$VMPfad\$vmname\vhdx\' existiert schon und muss vorher bereinigt werden."; exit}
+    Write-Host -ForegroundColor Yellow "`nDer Pfad '$VMPfad\$vmname\vhdx\' existiert schon und muss vorher bereinigt werden."; exit}
 ELSE {
     New-Item "$VMPfad\$vmname\vhdx\" -ItemType Directory 
 }
 
 
-Copy-Item "$VMPfad\vhdx-Template\$isoname.vhdx" -Destination "$VMPfad\$vmname\vhdx\$vmname.vhdx"
+Copy-Item "$VMPfad\x-vhdx-Template\$isoname.vhdx" -Destination "$VMPfad\$vmname\vhdx\$vmname.vhdx"
 
 New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMpfad -Generation 2 -VHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx
 Set-VM -Name $vmname -ProcessorCount $cpu -Notes $notes
@@ -237,7 +237,7 @@ VMconnect.exe localhost $vmname
 
 # warten bis die VM Online ist
 do {
-Write-Host -ForegroundColor Yellow "$vmname ist noch nicht erreichbar."
+Write-Host -ForegroundColor Yellow "$vmname ist ueber WINRM noch nicht erreichbar."
 Start-Sleep 4
 } while (!(Test-WSMan -ComputerName $vmname -ErrorAction SilentlyContinue))
 
@@ -277,11 +277,42 @@ Write-Host -ForegroundColor Green "der nervige Microsoft Edge Assistent beim ers
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-Item -Path 'c:\unattend.xml' -force} 
 
 
+# Laufwerk c umbenennen ($using wurde verwendet damit die lokale Variable im Skriptblock benutzt wird
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-Volume -DriveLetter C -NewFileSystemLabel $using:vmname}
+
 # unnoetige Features deinstallieren
+Write-Host -ForegroundColor Green "unnoetige Windows Features werden deinstalliert"
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsFeature “XPS-Viewer”,”Wireless-Networking”,”WindowsAdminCenterSetup”,”System-DataArchiver”}
 
 # und SNMP-WMI Feature installieren
+Write-Host -ForegroundColor Green "Der SNMP Dienst wird installiert."
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature “SNMP-WMI-Provider”}
+
+if ($Nested){
+Write-Host -ForegroundColor Yellow "RSAT-Tools für Hyper-V installieren bzw noch testen. Hyper-V wurde schon ins Offline Image eingebaut um die Neustarts zu sparen."
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Add-WindowsCapability -Online -Name Rsat.HyperV.Tools~~~~0.0.1.0}
+}
+
+
+# vorinstallierte Programme bereinigen - funktioniert aber nicht wenn der Admin noch nicht angemeldet war
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {mstsc /uninstall} # Remote Desktop Connection
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Get-AppxPackage -AllUsers *feedback*|  Remove-AppxPackage}
+# Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {DISM /Online /Remove-Capability /CapabilityName:Microsoft.Windows.MSPaint~~~~0.0.1.0}
+# DISM moechte immer einen Neustart nach der Paint Deinstallation und da bleibt das Skript stehen !!!
+# ich kenne derzeit aber keine andere Moeglichkeite Paint zu entfernen
+
+
+# Microsoft BGInfo mit winget installieren
+# C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\winget.exe - zu diesem Zeitpunkt leer - wieso ? Admin muss sich einmal anmelden
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget upgrade --all --accept-source-agreements}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget.exe install --id Microsoft.Sysinternals.BGInfo}
+Write-Host -ForegroundColor Yellow "BGinfo sollte noch in den Autostart."
+
+
+# Nachricht an den gerade angemeldeten Admin
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {msg * "Der Server muss noch neu gestartet werden. und BGInfo in den Autostart."}
+# Restart-Computer
+
 
 # zusaetzliche lokale Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
 # wenn Domaenenbenutzer in zu den Admins hinzugefuegt werden sollen, dann wird zuerst ein Domainjoin benoetigt.
