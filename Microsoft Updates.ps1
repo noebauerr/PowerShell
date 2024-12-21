@@ -13,8 +13,6 @@ $mu.RegisterServiceWithAU("7971f918-a847-4430-9279-4a52d1efe18d")
 
 
 
-# folgendes funktioniert mit Server 2025 en derzeit leider nicht
-
 # Den Schalter fuer Microsoft Updates in der GUI auf ON stellen
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings' -Name 'AllowMUUpdateService' -Value 1
 
@@ -23,4 +21,3 @@ Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings' -Nam
 
 # als Default setzen (als Admin)
 (New-Object -ComObject Microsoft.Update.ServiceManager).AddService2("7971f918-a847-4430-9279-4a52d1efe18d", 7, "")
-

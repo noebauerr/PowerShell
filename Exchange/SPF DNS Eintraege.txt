@@ -1,0 +1,9 @@
+SPF DNS Records (Notizen und Links)
+
+Super Link:
+https://www.spf-record.de/generator
+
+
+Start-Process http://www.open-spf.org/SPF_Record_Syntax # ohne HTTPS
+
+https://de.wikipedia.org/wiki/Sender_Policy_Framework
