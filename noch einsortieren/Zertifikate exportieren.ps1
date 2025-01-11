@@ -1,4 +1,4 @@
-﻿# Zertifikta exportieren
+﻿# Zertifikate exportieren
 
 certmgr.msc # aktueller Benutzer
 certlm.msc  # lokaler Computer (als Admin)

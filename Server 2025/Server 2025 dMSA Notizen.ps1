@@ -3,8 +3,9 @@
 # DMSA - delegated managed service account
 
 # https://4sysops.com/archives/delegated-managed-service-accounts-in-windows-server-2025/
+# https://4sysops.com/archives/osconfig-manage-security-settings-in-windows-server-2025-and-revert-configuration-drift/
 # https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/delegated-managed-service-accounts/delegated-managed-service-accounts-overview
-
+# https://www.windowspro.de/wolfgang-sommergut/delegated-managed-service-account-dmsa-neuer-kontotyp-fuer-windows-dienste-server
 
 # umwandeln eines alten Service Accounts in einen dMSA
 

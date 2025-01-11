@@ -9,12 +9,12 @@
 param([string]$Dateiname)
 
 $VMPfad     = "d:\vms"
-$vmname     = "v-2025-01-de"
+$vmname     = "v-2025-04-de"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # statischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2_64Bit_German_November.ISO"
+$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2.2_64Bit_German_December.ISO"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
@@ -24,17 +24,19 @@ $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle e
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
 Clear-Host
-Write-Host -ForegroundColor Green "Skriptversion vom 27.11.2024`n"
+Write-Host -ForegroundColor Green "Skriptversion vom 22.12.2024`n"
+
+$startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
 
 # falls ein Dateiname uebergeben wurde dann die Variablen aus dieser Datei laden
 if ($dateiname) {
-    Write-Host -ForegroundColor Green "Dateiname wurde übergeben: $Dateiname"
+    Write-Host -ForegroundColor Green "Dateiname wurde uebergeben: $Dateiname"
     . "$PSScriptRoot\$dateiname" # Datei ausfuehren und dadurch die default Variablen ueberschreiben
 } else {
     Write-Host "Es wurde kein Dateiname an dieses Skript uebergeben, es werden die Variablen dieser Datei verwendet."
 }
 
-
+#region Passwort setzen
 # unbedingt nachher das Passwort aendern da es im Klartext in der unattend.xml steht
 $AdminPassword  = "asdf1234!"
 
@@ -42,16 +44,22 @@ $AdminPassword  = "asdf1234!"
 $securePassword = ConvertTo-SecureString $AdminPassword -AsPlainText -Force
 # jetzt noch ein PSCredential-Objekt mit Benutzername und SecureString-Passwort erstellen
 $cred = New-Object System.Management.Automation.PSCredential ("Administrator", $securePassword)
+#endregion
 
 
-$startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
+#region Voraussetzungen pruefen
 
-IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon! Bitte anderen VM Namen verwenden."; Start-Sleep 5; exit}
- else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts."}
-
+# ob ISO Datei vorhanden ist
 IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
  else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"; Start-Sleep 5; exit}
 
+# sicher stellen dass der VM-Name noch nicht vorhanden ist
+IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon! Bitte anderen VM Namen verwenden."; Start-Sleep 5; exit}
+ else {Write-Host -ForegroundColor Green "VM-Name existiert noch nicht - weiter gehts."}
+
+# ob VM DateiPfad existiert, denn sonst gab es schon mal eine VM mit diesem Namen und es bestehen noch Reste davon
+IF (Test-Path "$VMPfad\$vmname\") {
+    Write-Host -ForegroundColor Yellow "`nDer Pfad '$VMPfad\$vmname\' existiert schon und muss vorher bereinigt werden."; exit}
 
 # testen ob der Switch auf diesem System existiert
 IF (get-vmswitch $SwitchName) {
@@ -61,10 +69,23 @@ else {
     Write-Host -ForegroundColor Red "Switch $Switchname existiert auf diesem System nicht."; Start-Sleep 5; exit
 }
 
+#endregion
+
 
 #region Convert-WindowsImage download
+
+# vhdx Template Pfad anlegen, hier werden die *.vhdx Dateien als Template abgelegt
+# Der Name x-vhdx-Template wurde gewaehlt damit der Ordner am Ende der VM Liste angelegt wird
+If (Test-Path "$VMPfad\x-vhdx-Template\") {
+    Write-Host "VHDX Template Pfad ist bereits vorhanden und muss nicht angelegt werden."
+}
+else { # Ordner wird jetzt angelegt
+    New-Item "$VMPfad\x-vhdx-Template\" -ItemType Directory
+}
+
 # Download Convert-WindowsImage from MSLAB
     Write-host "Testing Convert-windowsimage presence"
+    
     $convertWindowsImagePath = "$VMPfad\x-vhdx-Template\Convert-WindowsImage.ps1"
     
     If (Test-Path -Path $convertWindowsImagePath) {
@@ -86,12 +107,12 @@ else {
 #endregion 
 
 
-# testen ob vhdx Template schon existiert, falls ja dann nicht mehr neu erzeugen
+# ISO Dateiname fuer Template Erzeugung "extrahieren"
 $isoname = Split-Path $isopath -Leaf # LeafBase wuerde auch noch die .iso Endung entfernen, gibt es aber in PS 5.1 nicht
 $isoname = $isoname.Split(".")       # Dateinamename teilen Name und .iso Endung
 $isoname = $isoname[0]
 
-# x-vhdx template wurde nur gewaehlt damit der Ordner am Ende der VM Liste angezeigt wird
+# x-vhdx Template erzeugen
 IF (Test-Path "$VMPfad\x-vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "x-VHDX-Template $IsoName.vhdx existiert... und weiter gehts."}
  else {Write-Host -ForegroundColor Yellow "x-VHDX-Template $IsoName.vhdx existiert noch nicht und wird jetzt erzeugt."
   # ISO Datei mounten damit diese in eine vhdx Datei konvertiert werden kann
@@ -105,14 +126,10 @@ IF (Test-Path "$VMPfad\x-vhdx-Template\$IsoName.vhdx" -ErrorAction SilentlyConti
     Dismount-DiskImage -ImagePath $isopath 
  }
 
-# Abfragen ob es den Pfad schon gibt, dann gab es schon mal eine VM mit diesem Name und es bestehen noch Reste davon
-IF (Test-Path "$VMPfad\$vmname\vhdx\") {
-    Write-Host -ForegroundColor Yellow "`nDer Pfad '$VMPfad\$vmname\vhdx\' existiert schon und muss vorher bereinigt werden."; exit}
-ELSE {
-    New-Item "$VMPfad\$vmname\vhdx\" -ItemType Directory 
-}
+# VM Ordner anlegen
+New-Item "$VMPfad\$vmname\vhdx\" -ItemType Directory
 
-
+# vorhandene vhdx Template Datei in den VM-Ordner\vhdx kopieren
 Copy-Item "$VMPfad\x-vhdx-Template\$isoname.vhdx" -Destination "$VMPfad\$vmname\vhdx\$vmname.vhdx"
 
 New-VM -Name $vmname -MemoryStartupBytes $RAM -Path $VMpfad -Generation 2 -VHDPath $VMPfad\$vmname\vhdx\$vmname.vhdx
@@ -259,6 +276,7 @@ Write-Host -ForegroundColor green "RDP Zugriff wurde aktiviert."
 
 # Microsoft Updates aktivieren
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings' -Name 'AllowMUUpdateService' -Value 1}
+Write-Host -ForegroundColor Green "Microsoft Updates wurden aktiviert."
 
 
 # statische IP konfigurieren falls Variable gesetzt, damit die VM ueber RDP sofort erreicht werden kann.
@@ -282,14 +300,14 @@ Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-Volume -Drive
 
 # unnoetige Features deinstallieren
 Write-Host -ForegroundColor Green "unnoetige Windows Features werden deinstalliert"
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsFeature “XPS-Viewer”,”Wireless-Networking”,”WindowsAdminCenterSetup”,”System-DataArchiver”}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsFeature "XPS-Viewer","Wireless-Networking","WindowsAdminCenterSetup","System-DataArchiver"}
 
 # und SNMP-WMI Feature installieren
 Write-Host -ForegroundColor Green "Der SNMP Dienst wird installiert."
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature “SNMP-WMI-Provider”}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature SNMP-WMI-Provider}
 
 if ($Nested){
-Write-Host -ForegroundColor Yellow "RSAT-Tools für Hyper-V installieren bzw noch testen. Hyper-V wurde schon ins Offline Image eingebaut um die Neustarts zu sparen."
+Write-Host -ForegroundColor Yellow "RSAT-Tools fuer Hyper-V installieren bzw noch testen. Hyper-V wurde schon ins Offline Image eingebaut um die Neustarts zu sparen."
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Add-WindowsCapability -Online -Name Rsat.HyperV.Tools~~~~0.0.1.0}
 }
 
@@ -304,14 +322,39 @@ Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Get-AppxPackage -
 
 # Microsoft BGInfo mit winget installieren
 # C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\winget.exe - zu diesem Zeitpunkt leer - wieso ? Admin muss sich einmal anmelden
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget upgrade --all --accept-source-agreements}
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget.exe install --id Microsoft.Sysinternals.BGInfo}
-Write-Host -ForegroundColor Yellow "BGinfo sollte noch in den Autostart."
+# Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget upgrade --all --accept-source-agreements}
+# Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget.exe install --id Microsoft.Sysinternals.BGInfo}
+# Write-Host -ForegroundColor Yellow "BGinfo sollte noch in den Autostart."
 
+# Microsoft BGInfo mit winget installieren
+Write-Host "Hier beginnt der BGinfo Teil der vom Github Copilot erzeugt wurde."
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {
+    winget upgrade --all --accept-source-agreements
+    winget.exe install --id Microsoft.Sysinternals.BGInfo
+
+    # Pfad zur BGInfo-Anwendung
+    $bginfoPath = "C:\Program Files\BGInfo\BGInfo.exe"
+    # Pfad zum Autostart-Ordner des Administrators
+    $startupFolder = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup")
+    # Pfad zur Verknuepfung
+    $shortcutPath = [System.IO.Path]::Combine($startupFolder, "BGInfo.lnk")
+
+    # Verknuepfung erstellen
+    $WScriptShell = New-Object -ComObject WScript.Shell
+    $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
+    $shortcut.TargetPath = $bginfoPath
+    $shortcut.Save()
+
+    Write-Host -ForegroundColor Yellow "BGInfo wurde zum Autostart hinzugefuegt."
+}
 
 # Nachricht an den gerade angemeldeten Admin
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {msg * "Der Server muss noch neu gestartet werden. und BGInfo in den Autostart."}
 # Restart-Computer
+
+# Neustart hier gleich automatisch durchfuehren falls kein Benutzer angemeldet ist?
+
+# event noch das PS WIndows Update Modul installieren und Updates gleich durchfuehren.
 
 
 # zusaetzliche lokale Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)
