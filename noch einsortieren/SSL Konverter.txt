@@ -1,0 +1,14 @@
+SSL Konvertierungstool
+
+OpenSSL Alternative mit GUI
+
+Zum Konvertieren von pfx -> base64-encoded x.509 certificate
+Von pfx -> PEM formatted private Key
+
+
+Yet Another OpenSSL Gui – YAOG
+Releases · patrickpr/YAOG (github.com)
+https://github.com/patrickpr/YAOG
+
+Benoetigt vc_redist.x64.exe
+Winget install Microsoft.VCRedist.2015+.x64

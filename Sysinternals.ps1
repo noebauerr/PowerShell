@@ -14,7 +14,7 @@ Start-Process \\live.sysinternals.com\tools\autoruns64.exe
 Start-Process \\live.sysinternals.com\tools\bginfo64.exe
 
 
-# besser die Programme der Sysinternals Suite direkt installieren
+# besser die Programme der Sysinternals Suite direkt installieren da WebDAV schon abgekuendigt ist
 
 winget install --id Microsoft.Sysinternals --accept-package-agreements
 
