@@ -1,5 +1,5 @@
 $VMPfad     = "d:\vms"
-$vmname     = "v-server2"
+$vmname     = "v-server2-en"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM

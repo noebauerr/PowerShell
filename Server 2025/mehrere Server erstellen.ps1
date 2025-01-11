@@ -6,10 +6,10 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 #endregion
 #================================================================================================================
 
-$startzeit2 = get-date
+$start = Get-Date
 
-write-host "zuerst in den richtigen Ordner wechseln?"
-cd "C:\Users\reinh\Desktop\mehrere VMs"
+Write-Host "zuerst in den richtigen Ordner wechseln?"
+cd "C:\Users\r\Desktop\mehrere VMs"
 
 .\new-VM-unattend.ps1 v-server1.ps1
 .\new-VM-unattend.ps1 v-server2.ps1
@@ -17,6 +17,6 @@ cd "C:\Users\reinh\Desktop\mehrere VMs"
 .\new-VM-unattend.ps1 v-server4.ps1
 .\new-VM-unattend.ps1 v-server5.ps1
 
-$Scriptdauer = (get-date) - $startzeit2
+$Scriptdauer = (Get-Date) - $start
 Write-Host -ForegroundColor Cyan "`nDas Skript ist "($Scriptdauer).TotalSeconds" Sekunden gelaufen."
 pause

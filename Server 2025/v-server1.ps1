@@ -1,9 +1,9 @@
 $VMPfad     = "d:\vms"
-$vmname     = "v-server1"
+$vmname     = "v-server1-en"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # dynamischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2_64Bit_English_November.ISO"
+$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2.2_64Bit_English_December.ISO"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
