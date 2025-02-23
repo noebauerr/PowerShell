@@ -9,6 +9,14 @@ get-help -Detailed
 about_
 help about_*
 
+<# Mehrzeiliger Kommentar
+
+ein mehrzeiliger Kommentar
+Test
+
+#>
+
+
 # Vergleichsoperatoren
 about_Comparison_Operators
 

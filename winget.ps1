@@ -19,11 +19,6 @@ winget install "royal ts" --source msstore --accept-package-agreements # benutzt
 winget install "Microsoft .NET Windows Desktop Runtime 8.0" # wird von devolutions benoetigt
 winget install "devolutions remote desktop manager" --accept-package-agreements
 
-
-# ISO bearbeiten und unattend Zeugs
-winget search anyBurn   # zB Unattend.xml direkt auf die ISO schreiben
-winget search "ntlite"  # Win Installationsmedium anpassen und Service-Packs, Treiber und Systemkomponenten anpassen
-
 # Benchmark
 winget install cinebench --accept-package-agreements # CPU Benchmark
 winget install CrystalDiskMark
@@ -41,6 +36,10 @@ winget install "Github Desktop"
 # Netzwerk IP-Scanner und Sniffer
 winget install Famatech.AdvancedIPScanner
 winget install Wireshark
+
+# ISO bearbeiten und unattend Zeugs
+winget search anyBurn   # zB Unattend.xml direkt auf die ISO schreiben
+winget search "ntlite"  # Win Installationsmedium anpassen und Service-Packs, Treiber und Systemkomponenten anpassen
 
 # bootfaehige Windows USB Sticks erstellen
 winget install --id Rufus.Rufus

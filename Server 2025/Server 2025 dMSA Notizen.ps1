@@ -9,6 +9,8 @@
 
 # umwandeln eines alten Service Accounts in einen dMSA
 
+# dMSA kann genutzt werden sobald ein beschreibbarer Domaenen-Controller auf Server 2025 umgestellt wurde.
+
 $DMSA = "DMSA-Test"
 $DMSAdns = $DMSA + ".mydom.local"
 $LegacyAccount = "CN=Legacy-SVC,OU=MyServiceAccounts,OU=MyOU,DC=mydom,DC=local"

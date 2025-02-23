@@ -211,6 +211,9 @@ $fileContent =  @"
 # der Mount-VHD Befehl hat den Nachteil dass kein Laufwerksbuchstabe angegeben werden kann - wie kann man den "Mountpoint" rausfinden?
 # Mount-VHD -Path $VMPfad\$vmname\vhdx\$vmname.vhdx
 
+# hier noch ein wenig Zusatzinfo, event ist Mount-DiskImage doch eine Alternative
+# https://www.windowspro.de/wolfgang-sommergut/mount-diskimage-mount-vhd-mount-windowsimage-virtuelle-laufwerke-bereitstellen
+
 New-Item -Path "$vmpfad\$vmname\loeschen" -ItemType Directory
 dism /mount-image /ImageFile:$VMPfad\$vmname\vhdx\$vmname.vhdx /MountDir:"$vmpfad\$vmname\loeschen" /index:1
 
