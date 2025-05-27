@@ -16,3 +16,6 @@ Write-Host "Downloadtest fertig`n"
 
 Write-Host "Uploaddauer in Sekunden:   " $uploaddauer.TotalSeconds
 Write-Host "Downloaddauer in Sekunden: " $downloaddauer.TotalSeconds
+
+pause
+start-process https://speed.cloudflare.com/

@@ -50,6 +50,7 @@ winget install "Microsoft Loop"  --accept-package-agreements
 winget install "Microsoft Teams" --id Microsoft.Teams --source winget
 winget install onenote --accept-package-agreements
 winget install Microsoft.PowerShell  # powershell 7.x
+winget install Microsoft.VisualStudioCode
 
 # Sysinternals Suite
 winget install --id Microsoft.Sysinternals --accept-package-agreements
@@ -66,7 +67,7 @@ winget install "Windows Admin Center"
 Start-Process https://www.microsoft.com/en-gb/download/details.aspx?id=15201
 Start-Process https://download.microsoft.com/download/c/0/4/c0472410-b4c2-4aef-89d2-e7c708dfc225/lockoutstatus.msi
 
-# Signal Messenger fuer Windows funktioniert auf Server 2025 Preview nicht
+# Signal Messenger
 winget install --id OpenWhisperSystems.Signal
 
 # Winget Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
@@ -74,13 +75,16 @@ winget install --id OpenWhisperSystems.Signal
 
 
 # PowerShell Modul fuer Winget
+# dieses Modul funktioniert auch wenn es remote mit Invoke-Command aufgerufen wird ???
 #Requires -RunAsAdministrator
 Install-Module -Name Microsoft.WinGet.Client # -conform? -force? # laedt zuerst NuGet Provider nach
 
 get-command *winget*
 
+# Installierte Packete auflisten
 Get-WinGetPackage
+Get-WinGetPackage | Where-Object IsUpdateAvailable
+
+Find-WinGetPackage prtg
 
 Update-WinGetPackage
-
-Find-WinGetPackage PRTG

@@ -9,26 +9,29 @@
 param([string]$Dateiname)
 
 $VMPfad     = "d:\vms"
-$vmname     = "v-2025-04-de"
+$vmname     = "v-2025-01-en"
 $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # statischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025\Win_Server_STD_CORE_2025_24H2.2_64Bit_German_December.ISO"
+$isopath    = "d:\iso\Server 2025\SW_DVD9_Win_Server_STD_CORE_2025_24H2.6_64Bit_English_DC_STD_MLF_X24-02024.ISO"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
-# $ip  = 192.168.1.10
-# $snm = 255.255.255.0
+# $ip  = '192.168.1.17'
+$ip  = $null               # bei $null, also einer leeren Variable wird DHCP verwendet
+$snm = 24                  # PrefixLength
+$dns = '1.1.1.3','1.1.1.2'
+$gate= '192.168.1.254'
 
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
 Clear-Host
-Write-Host -ForegroundColor Green "Skriptversion vom 22.12.2024`n"
+Write-Host -ForegroundColor Green "Skriptversion vom 23.5.2025`n"
 
 $startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
 
-# falls ein Dateiname uebergeben wurde dann die Variablen aus dieser Datei laden
+# falls kein Dateiname uebergeben wurde, dann die Variablen aus dieser Datei laden
 if ($dateiname) {
     Write-Host -ForegroundColor Green "Dateiname wurde uebergeben: $Dateiname"
     . "$PSScriptRoot\$dateiname" # Datei ausfuehren und dadurch die default Variablen ueberschreiben
@@ -51,7 +54,7 @@ $cred = New-Object System.Management.Automation.PSCredential ("Administrator", $
 
 # ob ISO Datei vorhanden ist
 IF (Test-Path $isopath -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Green "ISO Datei existiert."}
- else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden!"; Start-Sleep 5; exit}
+ else {Write-Host -ForegroundColor Yellow "ACHTUNG ISO Datei wurde nicht gefunden! (kann auch daran liegen dass der User keinen Zugriff auf das Netzlaufwerk hat. Event lokal auf zB c:\iso kopieren."; Start-Sleep 5; exit}
 
 # sicher stellen dass der VM-Name noch nicht vorhanden ist
 IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Yellow "Diese VM existiert schon! Bitte anderen VM Namen verwenden."; Start-Sleep 5; exit}
@@ -265,6 +268,7 @@ Start-Sleep 4
 # noch ein wenig Audio damit man merkt dass die VM schon laeuft und bereit ist
 [Console]::Beep(900,1000) # Hoehe, Laenge
 # msg.exe * "VM laeuft."
+Write-Host -ForegroundColor Green "Die virtuelle Maschine ist jetzt installiert und du kannst dich anmelden. Event kommt jetzt noch einen Fehlermeldung mit Speak irgendwas da das Skript auf einem Server ohne Soundausgabe gestartet wurde. Dann kannst du diese Meldung einfach ignorieren."
 Add-Type -AssemblyName System.Speech
 $speaker = New-Object System.Speech.Synthesis.SpeechSynthesizer
 $speaker.Speak("Die virtuelle Maschine ist jetzt installiert und du kannst dich anmelden.")
@@ -284,7 +288,9 @@ Write-Host -ForegroundColor Green "Microsoft Updates wurden aktiviert."
 
 # statische IP konfigurieren falls Variable gesetzt, damit die VM ueber RDP sofort erreicht werden kann.
 if ($ip) {
-    write-Host -ForegroundColor Yellow "es wird eine statische IP Adresse konfiguriert"
+    write-Host -ForegroundColor green "es wird eine statische IP Adresse konfiguriert"
+    Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress $using:ip -PrefixLength $using:snm -DefaultGateway $using:gate}
+    Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses $using:dns}
     }
 
 
@@ -301,22 +307,29 @@ Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-Item -Path
 # Laufwerk c umbenennen ($using wurde verwendet damit die lokale Variable im Skriptblock benutzt wird
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-Volume -DriveLetter C -NewFileSystemLabel $using:vmname}
 
+# Meldung von Windows Admin Center und Azure Arc beim Start vom Servermanager ausblenden
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\ServerManager" -Name "DoNotPopWACConsoleAtSMLaunch" -Value 1 -Type DWord}
+
+
 # unnoetige Features deinstallieren
 Write-Host -ForegroundColor Green "unnoetige Windows Features werden deinstalliert"
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsFeature "XPS-Viewer","Wireless-Networking","WindowsAdminCenterSetup","System-DataArchiver"}
 
 # und SNMP-WMI Feature installieren
 Write-Host -ForegroundColor Green "Der SNMP Dienst wird installiert."
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature SNMP-WMI-Provider}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature SNMP-WMI-Provider -IncludeManagementTools}
 
 if ($Nested){
 Write-Host -ForegroundColor Yellow "RSAT-Tools fuer Hyper-V installieren bzw noch testen. Hyper-V wurde schon ins Offline Image eingebaut um die Neustarts zu sparen."
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Add-WindowsCapability -Online -Name Rsat.HyperV.Tools~~~~0.0.1.0}
 }
 
+Write-Host -ForegroundColor Yellow "jetzt mal als admin anmelden und dann das skript weiterlaufen lassen, nur zum testen.`n"
+pause
 
 # vorinstallierte Programme bereinigen - funktioniert aber nicht wenn der Admin noch nicht angemeldet war
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {mstsc /uninstall} # Remote Desktop Connection
+
+ # Remote Desktop Connection
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Get-AppxPackage -AllUsers *feedback*|  Remove-AppxPackage}
 # Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {DISM /Online /Remove-Capability /CapabilityName:Microsoft.Windows.MSPaint~~~~0.0.1.0}
 # DISM moechte immer einen Neustart nach der Paint Deinstallation und da bleibt das Skript stehen !!!
@@ -353,7 +366,8 @@ Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {
 
 # Nachricht an den gerade angemeldeten Admin
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {msg * "Der Server muss noch neu gestartet werden. und BGInfo in den Autostart."}
-# Restart-Computer
+Start-Sleep 30
+Restart-VM $vmname -Force
 
 # Neustart hier gleich automatisch durchfuehren falls kein Benutzer angemeldet ist?
 

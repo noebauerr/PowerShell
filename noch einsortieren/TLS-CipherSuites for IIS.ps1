@@ -1,4 +1,4 @@
-# Stand Jaenner 2022
+# Stand Jaenner 2025
 
 # Nartac Software - IIS Crypto GUI
 Start-Process https://www.nartac.com/Products/IISCrypto/Download
@@ -20,6 +20,7 @@ Enable-TlsCipherSuite -Name TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
 # Zusatzinfo
 # https://www.der-windows-papst.de/wp-content/uploads/2020/02/Ciphersuiten-managen.pdf
 # https://www.der-windows-papst.de/2021/11/12/disable-all-insecure-tls-cipher-suites/
+# https://www.borncity.com/blog/2025/02/20/iis-crypto-4-0-freigegeben/
 
 # Zeitschrift ct 2/2022 Seite 142-147 (Heise + kostenpflichtig)
 # Heise+ https://www.heise.de/hintergrund/Sichere-Cipher-Suites-fuer-TLS-auswaehlen-6317457.html
