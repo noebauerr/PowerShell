@@ -1,6 +1,10 @@
 start-process https://github.com/noebauerr/PowerShell
 
+# als Admin starten damit nicht bei jedem Programm die UAC kommt
 winget upgrade --all --accept-source-agreements # accept-source-agreements ist wichtig da winget sonst nicht startet
+
+# Zustimmung automatisch erteilen damit die interaktive Abfrage entfaellt
+winget upgrade --accept-source-agreements --accept-package-agreements
 
 # UniGetUI (war vorher wingetUI)
 winget search UniGetUI
@@ -72,19 +76,27 @@ winget install --id OpenWhisperSystems.Signal
 
 # Winget Parameter --silent --accept-source-agreements damit nicht immer nachgefragt wird
 
+# wenn in Winget die Zeichen nicht richtig angezeigt werden muss die Codepage auf UTF-8 gesetzt werden
+chcp 65001
+
+# Falls folgende Fehlermeldung kommt:
+# "The source requires the current machine´s 2-letter geographic region ..."
+# benoetigt der MSStore daher muss die Region unter
+# Einstellungen -> Zeit & Sprache -> Sprache & Region zB auf DE gestellt werden.
 
 
-# PowerShell Modul fuer Winget
-# dieses Modul funktioniert auch wenn es remote mit Invoke-Command aufgerufen wird ???
+
+# PowerShell Modul fuer Winget (nicht REMOTETAUGLICH)
+# dieses Modul funktioniert NICHT wenn es remote mit Invoke-Command aufgerufen wird !!!
+
 #Requires -RunAsAdministrator
 Install-Module -Name Microsoft.WinGet.Client # -conform? -force? # laedt zuerst NuGet Provider nach
 
 get-command *winget*
 
-# Installierte Packete auflisten
+# Installierte Packete auflisten und updaten
 Get-WinGetPackage
 Get-WinGetPackage | Where-Object IsUpdateAvailable
+Get-WinGetPackage | Where-Object IsUpdateAvailable | Update-WinGetPackage
 
 Find-WinGetPackage prtg
-
-Update-WinGetPackage

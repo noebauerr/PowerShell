@@ -2,8 +2,9 @@ SSL Konvertierungstool
 
 OpenSSL Alternative mit GUI
 
-Zum Konvertieren von pfx -> base64-encoded x.509 certificate
-Von pfx -> PEM formatted private Key
+Zum Konvertierenvon
+.pfx -> base64-encoded x.509 certificate
+.pfx -> PEM formatted private Key
 
 
 Yet Another OpenSSL Gui – YAOG

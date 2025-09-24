@@ -16,7 +16,7 @@ Start-Process https://www.youtube.com/watch?v=j470Tp4b6es
 # bisher nur mit Windows Server 2022 Azure Edition moeglich
 # ab Server 2025 fuer physische und virtuelle System, egal wo sie betrieben werden moeglich
 # nur im Azure Portal mit ARC Anbindung moeglich
-# nur fuer einen noch unbekannten monatlichen Betrag (ausser bei Azure und Azure Stack HCI)
+# nur ca. 5,- pro Monat und zusaetzlich 1,50 pro CPU und Monat (ausser bei Azure und Azure Stack HCI)
 
 #endregion
 
@@ -139,13 +139,15 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-ov
 
 
 # SMB Mindestversion zB 3.x und encryption kann konfiguriert werden
-# SMB authentication Rate Limiter (default auf 2 Sekunden)
+# SMB authentication Rate Limiter (default auf 2 Sekunden um brute force zu verhindern)
 Get-SmbServerConfiguration
 Set-SmbServerConfiguration -InvalidAuthenticationDelayTimeInMs 2000 # in Millisekunden, 0 = disabled
 Start-Process https://www.youtube.com/watch?v=3YT18BiNOKM
 
 # SMB NTLM blocking
 Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-ntlm-blocking-now-supported-in-windows-insider/ba-p/3916206
+
+# SMB signing required by default
 
 # SMB Firewall Rule Hardening (NetBIOS Ports werden nicht geoeffnet)
 

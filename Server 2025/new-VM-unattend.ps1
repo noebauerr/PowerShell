@@ -1,5 +1,8 @@
 # eine Server 2025 VM ohne Benutzerinteraktion installieren
 
+# Zeile ca. 350 restart optimieren ist noch offen
+# Restart-Computer $servers -Protocol WSMan -Wait -For PowerShell
+
 # Hier liegt die aktuelle Version des Skripts
 # https://github.com/noebauerr/PowerShell
 
@@ -14,20 +17,20 @@ $Notes      = "Server 2025 Test-VM"
 $cpu        = 4
 $RAM        = 2048MB # statischer RAM
 $Storage    = 40GB
-$isopath    = "d:\iso\Server 2025\SW_DVD9_Win_Server_STD_CORE_2025_24H2.6_64Bit_English_DC_STD_MLF_X24-02024.ISO"
+$isopath    = "d:\iso\Server 2025\Win_Server_2025_August25_English.ISO"
 $SwitchName = "Default Switch"
 $Nested     = 0 # mit 1 wird eine NESTED VM mit vorinstallierter Hyper-V Rolle erstellt
 
 # $ip  = '192.168.1.17'
-$ip  = $null               # bei $null, also einer leeren Variable wird DHCP verwendet
-$snm = 24                  # PrefixLength
-$dns = '1.1.1.3','1.1.1.2'
+$ip  = $null                        # bei $null, also einer leeren Variable wird DHCP verwendet
+$snm = 24                           # PrefixLength
+$dns = '86.54.11.13','86.54.11.213' # https://www.joindns4.eu/for-public
 $gate= '192.168.1.254'
 
 # App die gleich mit Winget installiert werden soll - sinnvoll ?
 
 Clear-Host
-Write-Host -ForegroundColor Green "Skriptversion vom 23.5.2025`n"
+Write-Host -ForegroundColor Green "Skriptversion vom 6.6.2025`n"
 
 $startzeit = get-date # fuer die Zeitmessung wie lange das Skript laeuft
 
@@ -62,7 +65,17 @@ IF (Get-VM $vmname -ErrorAction SilentlyContinue) {Write-Host -ForegroundColor Y
 
 # ob VM DateiPfad existiert, denn sonst gab es schon mal eine VM mit diesem Namen und es bestehen noch Reste davon
 IF (Test-Path "$VMPfad\$vmname\") {
-    Write-Host -ForegroundColor Yellow "`nDer Pfad '$VMPfad\$vmname\' existiert schon und muss vorher bereinigt werden."; exit}
+    Write-Host -ForegroundColor Yellow "`nDer Pfad '$VMPfad\$vmname\' existiert schon und muss vorher bereinigt werden.`n"; exit}
+
+# pruefen ob noch genug Speicher auf dem Datentraeger frei ist
+$Laufwerk = (Get-Item $vmpfad).PSDrive.Name
+$frei = (Get-PSDrive $laufwerk).Free
+
+IF ($frei -gt $storage) {
+    Write-Host "Es sind mehr als $storage Byte frei.`n"
+} else {
+    Write-Host "Es sind nicht genug freie Bytes vorhanden.`n; exit"
+}
 
 # testen ob der Switch auf diesem System existiert
 IF (get-vmswitch $SwitchName) {
@@ -85,6 +98,15 @@ If (Test-Path "$VMPfad\x-vhdx-Template\") {
 else { # Ordner wird jetzt angelegt
     New-Item "$VMPfad\x-vhdx-Template\" -ItemType Directory
 }
+
+# Readme.txt Datei mit Erklaerung wieso es diesen Ordner gibt erstellen
+$DateiInhalt = @"
+Hier werden die vhdx Dateien abgelegt die vom Convert-Image.ps1 erzeugt wurden.
+Der Ordner kann jederzeit geloescht werden da die vhdx Dateien vom Skript wieder automatisch angelegt werden.
+Das hat aber den Nachteil dass die vhdx Dateien wieder neu erzeugt werden muessen, was einige Minuten dauert.
+"@
+Set-Content -Path "$VMPfad\x-vhdx-Template\ReadMe.txt" -Value $DateiInhalt
+
 
 # Download Convert-WindowsImage from MSLAB
     Write-host "Testing Convert-windowsimage presence"
@@ -112,6 +134,12 @@ else { # Ordner wird jetzt angelegt
 
 # ISO Dateiname fuer Template Erzeugung "extrahieren"
 $isoname = Split-Path $isopath -Leaf # LeafBase wuerde auch noch die .iso Endung entfernen, gibt es aber in PS 5.1 nicht
+
+# pruefen ob mehr als ein Punkt im Dateinamen enthalten ist
+$anzahlPunkte = ($isoname -split '\.').Count -1
+if ($anzahlPunkte -gt 1) {Write-Host -ForegroundColor Yellow "Im ISO Dateinamen sind mehr als 2.Punkte, das wird derzeit nicht unterst�tzt!"; exit}
+
+# ACHTUNG funktioniert nur wenn es nur einen Punkt im Dateinamen gibt
 $isoname = $isoname.Split(".")       # Dateinamename teilen Name und .iso Endung
 $isoname = $isoname[0]
 
@@ -152,7 +180,6 @@ if ($Nested) {
     Set-VMNetworkAdapter -VMName $vmname -Name $NicName -MacAddressSpoofing On
     Set-VMProcessor -VMName $vmname -ExposeVirtualizationExtensions $true
     }
-
 
 #region - unattend.xml Inhalt erstellen
 
@@ -274,7 +301,7 @@ $speaker = New-Object System.Speech.Synthesis.SpeechSynthesizer
 $speaker.Speak("Die virtuelle Maschine ist jetzt installiert und du kannst dich anmelden.")
 
 
-# RDP Zugriff aktivieren (dadurch funktioniert auch die "Erweitere Sitzung" in der Hyper-V Console
+# RDP Zugriff aktivieren (dadurch funktioniert auch die "Erweiterte Sitzung" in der Hyper-V Console
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty -Path 'HKLM:System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0}
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -Name "RemoteDesktop-UserMode-In-UDP"}
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Enable-NetFirewallRule -Name "RemoteDesktop-UserMode-In-TCP"}
@@ -287,6 +314,7 @@ Write-Host -ForegroundColor Green "Microsoft Updates wurden aktiviert."
 
 
 # statische IP konfigurieren falls Variable gesetzt, damit die VM ueber RDP sofort erreicht werden kann.
+# ($using wurde verwendet damit die lokale Variable im Skriptblock benutzt wird)
 if ($ip) {
     write-Host -ForegroundColor green "es wird eine statische IP Adresse konfiguriert"
     Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress $using:ip -PrefixLength $using:snm -DefaultGateway $using:gate}
@@ -304,7 +332,7 @@ Write-Host -ForegroundColor Green "der nervige Microsoft Edge Assistent beim ers
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-Item -Path 'c:\unattend.xml' -force} 
 
 
-# Laufwerk c umbenennen ($using wurde verwendet damit die lokale Variable im Skriptblock benutzt wird
+# Laufwerk c umbenennen ($using wurde verwendet damit die lokale Variable im Skriptblock benutzt wird)
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-Volume -DriveLetter C -NewFileSystemLabel $using:vmname}
 
 # Meldung von Windows Admin Center und Azure Arc beim Start vom Servermanager ausblenden
@@ -314,17 +342,22 @@ Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Set-ItemProperty 
 # unnoetige Features deinstallieren
 Write-Host -ForegroundColor Green "unnoetige Windows Features werden deinstalliert"
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsFeature "XPS-Viewer","Wireless-Networking","WindowsAdminCenterSetup","System-DataArchiver"}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Remove-WindowsCapability -Online -Name "AzureArcSetup~~~~"}
+# Neustart ist erforderlich
+
 
 # und SNMP-WMI Feature installieren
 Write-Host -ForegroundColor Green "Der SNMP Dienst wird installiert."
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Install-WindowsFeature SNMP-WMI-Provider -IncludeManagementTools}
+
 
 if ($Nested){
 Write-Host -ForegroundColor Yellow "RSAT-Tools fuer Hyper-V installieren bzw noch testen. Hyper-V wurde schon ins Offline Image eingebaut um die Neustarts zu sparen."
 Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Add-WindowsCapability -Online -Name Rsat.HyperV.Tools~~~~0.0.1.0}
 }
 
-Write-Host -ForegroundColor Yellow "jetzt mal als admin anmelden und dann das skript weiterlaufen lassen, nur zum testen.`n"
+Write-Host -ForegroundColor Yellow "jetzt mal als Admin anmelden und dann das skript weiterlaufen lassen, nur zum Testen.`n"
+
 pause
 
 # vorinstallierte Programme bereinigen - funktioniert aber nicht wenn der Admin noch nicht angemeldet war
@@ -336,42 +369,18 @@ Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {Get-AppxPackage -
 # ich kenne derzeit aber keine andere Moeglichkeite Paint zu entfernen
 
 
-# Microsoft BGInfo mit winget installieren
-# C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\winget.exe - zu diesem Zeitpunkt leer - wieso ? Admin muss sich einmal anmelden
-# Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget upgrade --all --accept-source-agreements}
-# Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {winget.exe install --id Microsoft.Sysinternals.BGInfo}
-# Write-Host -ForegroundColor Yellow "BGinfo sollte noch in den Autostart."
-
-# Microsoft BGInfo mit winget installieren
-Write-Host "Hier beginnt der BGinfo Teil der vom Github Copilot erzeugt wurde."
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {
-    winget upgrade --all --accept-source-agreements
-    winget.exe install --id Microsoft.Sysinternals.BGInfo
-
-    # Pfad zur BGInfo-Anwendung
-    $bginfoPath = "C:\Program Files\BGInfo\BGInfo.exe"
-    # Pfad zum Autostart-Ordner des Administrators
-    $startupFolder = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup")
-    # Pfad zur Verknuepfung
-    $shortcutPath = [System.IO.Path]::Combine($startupFolder, "BGInfo.lnk")
-
-    # Verknuepfung erstellen
-    $WScriptShell = New-Object -ComObject WScript.Shell
-    $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
-    $shortcut.TargetPath = $bginfoPath
-    $shortcut.Save()
-
-    Write-Host -ForegroundColor Yellow "BGInfo wurde zum Autostart hinzugefuegt."
-}
 
 # Nachricht an den gerade angemeldeten Admin
-Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {msg * "Der Server muss noch neu gestartet werden. und BGInfo in den Autostart."}
+Invoke-Command -VMName $vmname -Credential $cred -ScriptBlock {msg * "Der Server muss noch neu gestartet werden."}
 Start-Sleep 30
 Restart-VM $vmname -Force
+# Restart-Computer $servers -Protocol WSMan -Wait -For PowerShell
+
 
 # Neustart hier gleich automatisch durchfuehren falls kein Benutzer angemeldet ist?
 
-# event noch das PS WIndows Update Modul installieren und Updates gleich durchfuehren.
+
+# event noch das PS Windows Update Modul installieren und Updates gleich durchfuehren.
 
 
 # zusaetzliche lokale Benutzer zur Gruppe der lokalen Administratoren hinzufuegen (auf Sprachneutralitaet achten)

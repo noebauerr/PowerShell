@@ -9,4 +9,4 @@ Winget install Microsoft.SQLServerManagementStudio
 
 # jetzt nochmals Microsoft Updates starten damit auch die SQL Sicherheitsupdates eingespielt werden
 # Sicherheitsupdate für SQL Server 2022 RTM GDR wird installiert
-# CU 16 (oder neuer) von Hand installieren ?
+# CU 20 (oder neuer) von Hand installieren ?
