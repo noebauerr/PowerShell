@@ -1,4 +1,4 @@
-# Notizen zu den Windows Server 2025 Neuerungen (Stand November 2024)
+# Notizen zu den Windows Server 2025 Neuerungen (Stand Dezember 2025)
 
 Start-Process https://learn.microsoft.com/en-us/windows-server/get-started/whats-new-windows-server-2025
 
@@ -19,7 +19,6 @@ Start-Process https://www.youtube.com/watch?v=j470Tp4b6es
 # nur ca. 5,- pro Monat und zusaetzlich 1,50 pro CPU und Monat (ausser bei Azure und Azure Stack HCI)
 
 #endregion
-
 
 #region Active Directory
 
@@ -163,20 +162,24 @@ Start-Process https://techcommunity.microsoft.com/t5/storage-at-microsoft/smb-nt
 # Winget Support (juhuuuu)
 winget install Microsoft.Sysinternals.ProcessMonitor
 
-# bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden bei einer SQL 2022 Installation
+# bei der deutschen OS Version muss vorher die Region auf en-us gestellt werden bei einer SQL 2022(2025?) Installation
 Set-Culture -CultureInfo en-us
 winget install Microsoft.SQLServer.2022.Express --silent --accept-source-agreements
 Set-Culture -CultureInfo de-de
 
 
-#region Storage
+#region Storage - Verbesserungen ab Ende 2025
 
 # viele Verbesserungen im Storage Bereich
 Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-new-storage-features/
 
-# NVMe Treiber mit bis zu 70% mehr IOPS und weniger Latenz
+# NVMe Treiber mit bis zu 70% mehr IOPS und weniger Latenz, muss aber mit Registry Key freigeschaltet werden
 # diskspd.exe -r4k -b4k -t8 -o64 -d60 -Suw #0
 # NVMe-of (over Fabrics) mit TCP/RDMA Support
+
+Start-Process https://www.windowspro.de/news/windows-server-2025-erhaelt-native-unterstuetzung-fuer-nvme/06027.html
+Start-Process https://techcommunity.microsoft.com/blog/windowsservernewsandbestpractices/announcing-native-nvme-in-windows-server-2025-ushering-in-a-new-era-of-storage-p/4477353
+
 
 # REFS Deduplication and Compression (anscheinend total neu geschrieben), Dedup wird jetzt auch auf VM Workload unterstuetzt
 
