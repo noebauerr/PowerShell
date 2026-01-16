@@ -13,3 +13,7 @@ start-process https://learn.microsoft.com/en-us/dotnet/core/install/how-to-detec
 
 # Downloadlink .NET
 Start-Process https://dotnet.microsoft.com/en-us/download
+
+# EoS - End of Support
+# .net 9 am 12. Mai 2026
+# .net 8 im November 2026

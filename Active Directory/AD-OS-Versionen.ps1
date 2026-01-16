@@ -12,6 +12,7 @@ Get-WindowsCapability -Name "RSat.ActiveDirectory*" -Online | Add-WindowsCapabil
 
 # Windows 10 Build - start-process https://support.microsoft.com/de-at/help/13853/windows-lifecycle-fact-sheet
 # Microsoft PC Integritätsprüfung: https://aka.ms/GetPCHealthCheckApp, WindowsPCHealthCheckSetup.msi
+Start-Process https://www.microsoft.com/de-de/windows/extended-security-updates
 # 19044 - 21H2 - EOS Juni 2023,    Enterprise 11. Juni 2024
 # 19045 - 22H2 - EOS Oktober 2025, Enterprise 14.Oktober 2025
 
@@ -22,22 +23,35 @@ Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-11-en
 # 22621 - 22H2 - EOS Oktober 2024,  Enterprise Oktober 2025
 # 22631 - 23H2 - EOS November 2025, Enterprise November 2026
 # 26100 - 24H2 - EOS Oktober 2026,  Enterprise Oktober 2027
-# 26200 - 25H2 - EOS Oktober 2028
+# 26200 - 25H2 - EOS Oktober 2027,  Enterprise Oktober 2028
 
 
-# Server OS Supportende
-# 2016      12.01.2027
-# 2019       9.01.2029
-# 2022      14.10.2031
-# 2025      10.10.2034
+# Windows Server OS Supportende
+# 2016      12.01.2027 - Mainstream End Date 11.1.2022
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-server-2016
+
+# 2019       9.01.2029 - Mainstream End Date 9.1.2024
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-server-2019
+
+# 2022      14.10.2031 - Mainstream End Date 13.10.2026
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-server-2022
+
+# 2025      10.10.2034 - Mainstream End Date 13.11.2029
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/windows-server-2025
 
 
 # Office End of Support
-# 2013  14.April 2023
 # 2016  14.Oktober 2025
 # 2019  14.Oktober 2025
 # 2021  13.Oktober 2026 (Mainstream End Date = Extended End Date)
 # 2024   9.Oktober 2029
+
+
+# SQL Server End of Support
+# 2016  14.Juli 2026
+Start-Process https://learn.microsoft.com/en-us/lifecycle/products/sql-server-2016
+
+# 2019   8.1.2030 - Mainstream End Date 28.2.2025)
 
 
 # Betriebssystem Versionen auflisten
