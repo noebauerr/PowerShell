@@ -13,3 +13,6 @@ https://github.com/patrickpr/YAOG
 
 Benoetigt vc_redist.x64.exe
 Winget install Microsoft.VCRedist.2015+.x64
+
+
+https://keystore-explorer.org/features.html
