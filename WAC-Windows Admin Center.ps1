@@ -23,6 +23,9 @@ Start-Process https://techcommunity.microsoft.com/blog/windows-admin-center-blog
 Start-Process https://techcommunity.microsoft.com/blog/windows-admin-center-blog/installing-windows-admin-center-virtualization-mode/4496405
 Start-Process https://techcommunity.microsoft.com/blog/windows-admin-center-blog/resource-onboarding-using-windows-admin-center-virtualization-mode/4500281
 
+# vMode Public Preview 2
+Start-Process https://techcommunity.microsoft.com/blog/windows-admin-center-blog/announcing-windows-admin-center-virtualization-mode-public-preview-2/4508937
+
 # Voraussetzungen fuer WAC vMode
 # VM mit 4 CPUs und 8 GB RaM
 # vMode nutzt Network ATC

@@ -85,6 +85,9 @@ chcp 65001
 # Einstellungen -> Zeit & Sprache -> Sprache & Region zB auf DE gestellt werden.
 
 
+# Winget auf einem Server 2025 muss event fuer weitere Admins extra registriert werden
+Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+
 
 # PowerShell Modul fuer Winget (nicht REMOTETAUGLICH)
 # dieses Modul funktioniert NICHT wenn es remote mit Invoke-Command aufgerufen wird !!!

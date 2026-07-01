@@ -16,7 +16,6 @@ Start-Process https://www.youtube.com/watch?v=j470Tp4b6es
 # bisher nur mit Windows Server 2022 Azure Edition moeglich
 # ab Server 2025 fuer physische und virtuelle System, egal wo sie betrieben werden moeglich
 # nur im Azure Portal mit ARC Anbindung moeglich
-# nur ca. 5,- pro Monat und zusaetzlich 1,50 pro CPU und Monat (ausser bei Azure und Azure Stack HCI)
 
 #endregion
 
@@ -119,7 +118,7 @@ net start wlansvc # service per default auf manual start
 # Settings > Accounts > Email & accoounts
 # - Microsoft Entra ID
 # - Microsoft account
-# - Work od school account 
+# - Work or school account 
 
 # Credential Guard ist standardmaessig aktiviert, bei einer Cluster-VM wird aber fuer vTPM eine Guarded Facric benoetigt
 
@@ -168,7 +167,7 @@ winget install Microsoft.SQLServer.2022.Express --silent --accept-source-agreeme
 Set-Culture -CultureInfo de-de
 
 
-#region Storage - Verbesserungen ab Ende 2025
+#region Storage - Verbesserungen seit Ende 2025
 
 # viele Verbesserungen im Storage Bereich
 Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-new-storage-features/
@@ -180,6 +179,8 @@ Start-Process https://www.virtualizationhowto.com/2024/04/windows-server-2025-ne
 Start-Process https://www.windowspro.de/news/windows-server-2025-erhaelt-native-unterstuetzung-fuer-nvme/06027.html
 Start-Process https://techcommunity.microsoft.com/blog/windowsservernewsandbestpractices/announcing-native-nvme-in-windows-server-2025-ushering-in-a-new-era-of-storage-p/4477353
 
+# mit folgendem Registry Key kann man die neuen NVMe Treiber aktivieren
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides /v 1176759950 /t REG_DWORD /d 1 /f
 
 # REFS Deduplication and Compression (anscheinend total neu geschrieben), Dedup wird jetzt auch auf VM Workload unterstuetzt
 
